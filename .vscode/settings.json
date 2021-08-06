@@ -16,7 +16,9 @@
     "denoland",
     "denov",
     "deps",
+    "lintcommits",
+    "lintformat",
     "wagoid",
     "xargs"
-  ],
+  ]
 }
