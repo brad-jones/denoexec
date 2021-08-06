@@ -95,6 +95,8 @@ jobs:
     if: "! contains(github.event_name, 'pull_request')"
     needs: [commitlint, denolint, test]
     runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ github.token }}
     steps:
       - name: Checkout repo
         uses: actions/checkout@v2.3.4
