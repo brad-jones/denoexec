@@ -19,4 +19,4 @@ jobs:
       - uses: denoland/setup-deno@v1.1.0
         with:
           deno-version: "1.12.2"
-      - run: deno test --allow-read --allow-write --allow-run
+      - run: deno test --allow-read --allow-write --allow-run --unstable
