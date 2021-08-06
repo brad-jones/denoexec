@@ -16,5 +16,7 @@ jobs:
         os: [ubuntu-latest, macos-latest, windows-latest]
     steps:
       - uses: actions/checkout@v2.3.4
-      - uses: asdf-vm/actions/install@v1.1.0
+      - uses: denoland/setup-deno@v1.1.0
+        with:
+          deno-version: "1.12.2"
       - run: deno test --allow-read --allow-write --allow-run
