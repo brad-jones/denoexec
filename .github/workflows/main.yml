@@ -121,4 +121,4 @@ jobs:
       - name: Install node deps
         run: npm ci
       - name: Execute semantic-release
-        run: npx semantic-release --dry-run
+        run: npx semantic-release
