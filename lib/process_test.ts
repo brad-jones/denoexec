@@ -128,6 +128,29 @@ Deno.test("stdin", async () => {
   }
 });
 
+Deno.test("kill", async () => {
+  const stdout = new Buffer();
+  const stderr = new Buffer();
+
+  function ping(target: string) {
+    if (Deno.build.os === "windows") {
+      return ["ping", "-n", "4", target];
+    }
+    return ["ping", "-c", "4", target];
+  }
+
+  const process = exec({
+    cmd: ping("127.0.0.1"),
+    stdout,
+    stderr,
+  });
+
+  setTimeout(() => process.kill(), 1000);
+
+  const results = await process;
+  assertStrictEquals(results.killed, true);
+});
+
 Deno.test("throwOnExecutableNotFound", async () => {
   const stdout = new Buffer();
   const stderr = new Buffer();
