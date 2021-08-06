@@ -30,6 +30,8 @@ jobs:
           key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
           restore-keys: ${{ runner.os }}-node-
           path: ~/.npm
+      - name: Install node deps
+        run: npm ci
       - name: Work out where to start linting from
         id: gitRef
         run: |
@@ -108,5 +110,7 @@ jobs:
           key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
           restore-keys: ${{ runner.os }}-node-
           path: ~/.npm
+      - name: Install node deps
+        run: npm ci
       - name: Execute semantic-release
         run: npx semantic-release --dry-run
