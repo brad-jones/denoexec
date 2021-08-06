@@ -93,7 +93,7 @@ jobs:
             ~/Library/Caches/deno
             ~/AppData/Local/deno/deps
       - name: Execute deno tests
-        run: deno test --allow-read --allow-write --allow-run --unstable --lock deps.lock.json lib/
+        run: deno test -A --lock deps.lock.json lib/
 
   release:
     if: "! contains(github.event_name, 'pull_request')"
