@@ -1,0 +1,22 @@
+{
+  "files.eol": "\n",
+  "deno.enable": true,
+  "deno.lint": true,
+  "deno.unstable": true,
+  "deno.suggest.imports.hosts": {
+    "https://deno.land": true
+  },
+  "editor.formatOnSave": true,
+  "editor.formatOnPaste": true,
+  "editor.defaultFormatter": "denoland.vscode-deno",
+  "cSpell.words": [
+    "Deno",
+    "commitlint",
+    "denoexec",
+    "denoland",
+    "denov",
+    "deps",
+    "wagoid",
+    "xargs"
+  ],
+}

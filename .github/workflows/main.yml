@@ -1,0 +1,54 @@
+on: [push, pull_request]
+
+env:
+  CI: true
+
+concurrency:
+  group: ${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  commitlint:
+    if: "! contains(github.event.head_commit.message, '[skip ci]')"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2.3.4
+        with:
+          fetch-depth: 0
+      - uses: wagoid/commitlint-github-action@v4.1.1
+        with:
+          firstParent: false
+          failOnWarnings: true
+
+  test:
+    if: "! contains(github.event.head_commit.message, '[skip ci]')"
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v2.3.4
+      - name: Get Deno Version
+        run: echo ::set-output name=DENO_VERSION::$(cat .tool-versions | grep deno | xargs -n 1 | tail -n1)
+        shell: bash
+        id: denov
+      - uses: denoland/setup-deno@v1.1.0
+        with:
+          deno-version: ${{ steps.denov.outputs.DENO_VERSION }}
+      - uses: actions/cache@v2.1.6
+        with:
+          key: ${{ runner.os }}-deno-${{ hashFiles('**/deps.lock.json') }}
+          restore-keys: ${{ runner.os }}-deno-
+          path: |
+            ~/.cache/deno/deps
+            ~/Library/Caches/deno
+            ~/AppData/Local/deno/deps
+      - run: deno test --allow-read --allow-write --allow-run --unstable --lock deps.lock.json
+
+  release:
+    if: "! contains(github.event_name, 'pull_request')"
+    needs: [commitlint, test]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2.3.4
+
