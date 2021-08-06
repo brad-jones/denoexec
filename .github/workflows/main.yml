@@ -16,7 +16,11 @@ jobs:
         os: [ubuntu-latest, macos-latest, windows-latest]
     steps:
       - uses: actions/checkout@v2.3.4
+      - name: Get Deno Version
+        run: echo ::set-output name=DENO_VERSION::$(cat .tool-versions | grep deno | xargs -n 1 | tail -n1)
+        shell: bash
+        id: denov
       - uses: denoland/setup-deno@v1.1.0
         with:
-          deno-version: "1.12.2"
+          deno-version: ${{ steps.denov.outputs.DENO_VERSION }}
       - run: deno test --allow-read --allow-write --allow-run --unstable
