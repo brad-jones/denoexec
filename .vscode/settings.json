@@ -14,10 +14,13 @@
     "commitlint",
     "denoexec",
     "denoland",
+    "denolint",
     "denov",
     "deps",
-    "lintcommits",
-    "lintformat",
+    "nodev",
+    "pwsh",
+    "signo",
+    "taskkill",
     "wagoid",
     "xargs"
   ]

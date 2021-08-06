@@ -5,7 +5,7 @@ import { io } from "../deps.ts";
 
 // EXAMPLE: 1
 // -----------------------------------------------------------------------------
-// By default denoexex will stream all STDIO to the parent process,
+// By default denoexec will stream all STDIO to the parent process,
 // ie: inheritStdio = true.
 await example("1", async () => {
   const results = await exec({ cmd: ping("1.1.1.1") });
@@ -123,7 +123,7 @@ await example("9", async () => {
 await example("10", async () => {
   try {
     await exec({
-      cmd: ["pwsh", "-C", "Write-Error 'Opps...';"],
+      cmd: ["pwsh", "-C", "Write-Error 'Oops...';"],
       throwOnStdErr: true,
     });
   } catch (e) {
