@@ -38,7 +38,11 @@ jobs:
           if [ "${{ github.event_name }}" == 'pull_request' ]; then
             echo "::set-output name=sha::${{ github.event.pull_request.base.sha }}"
           else
-            echo "::set-output name=sha::${{ github.event.before }}"
+            if [ "${{ github.event.forced }}" == 'true' ]; then
+              echo "::set-output name=sha::${{ github.sha }}"
+            else
+              echo "::set-output name=sha::${{ github.event.before }}"
+            fi
           fi
       - name: Run commitlint
         run: npx commitlint --from ${{ steps.gitRef.outputs.sha }}
