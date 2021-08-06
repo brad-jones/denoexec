@@ -5,7 +5,11 @@
 [![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg)](https://conventionalcommits.org)
 [![KeepAChangelog](https://img.shields.io/badge/Keep%20A%20Changelog-1.0.0-%23E05735)](https://keepachangelog.com/)
 [![License](https://img.shields.io/github/license/brad-jones/denoexec.svg)](https://github.com/brad-jones/denoexec/blob/master/LICENSE)
+
+[![deno land](http://img.shields.io/badge/available%20on-deno.land/x-lightgrey.svg?logo=deno&labelColor=black)](https://deno.land/x/cli_badges)
+[![deno version](https://img.shields.io/badge/deno-^1.12.2-lightgrey?logo=deno)](https://github.com/denoland/deno)
 [![TypeScript](https://img.shields.io/badge/%3C/%3E-TypeScript-blue.svg)](https://www.typescriptlang.org/)
+[![GitHub release](https://img.shields.io/github/release/brad-jones/denoexec.svg)](https://github.com/brad-jones/denoexec/releases)
 
 A higher level wrapper around
 [`Deno.run`](https://doc.deno.land/builtin/stable#Deno.run).
