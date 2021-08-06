@@ -24,3 +24,5 @@ jobs:
         with:
           deno-version: ${{ steps.denov.outputs.DENO_VERSION }}
       - run: deno test --allow-read --allow-write --allow-run --unstable
+      - run: sleep 5m
+        shell: bash
