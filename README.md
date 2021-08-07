@@ -39,3 +39,37 @@ await exec({ cmd: ["ping", "1.1.1.1"] });
 ```
 
 > see [./example/main.ts](./example/main.ts) for more details
+
+## Auto Update / aka Dependabot
+
+Existing tools, no support for Deno:
+
+- <https://dependabot.com/>
+- <https://renovatebot.com/>
+
+Deno updater tools:
+
+- <https://github.com/hayd/deno-udd>
+- <https://github.com/drashland/dmm>
+
+<https://mergify.io/> is free for Open Source...
+
+Using native GHA:
+
+- Workflow that runs on a schedule.
+- Each job represents a type of dep/tool to update.
+- A job would:
+  - Checkout the repo
+  - Run code (eg: deno-udd) that modifies the source code in some way.
+  - Uses <https://github.com/peter-evans/create-pull-request>
+
+<https://github.com/peter-evans/create-pull-request>
+<https://github.com/peter-evans/slash-command-dispatch>
+<https://github.com/peter-evans/rebase>
+
+- Update `.tool-versions`
+- Update github actions
+- Update node_modules
+- Update deno deps
+  `deno run -A https://deno.land/x/udd@0.5.0/main.ts deps.ts --test="deno test -A lib/"`
+  `deno cache --lock=deps.lock.json --lock-write deps.ts`
