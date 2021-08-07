@@ -12,6 +12,11 @@ pull_request_rules:
     conditions:
       - base=master
       - label=dependencies
+      - check-success=commitlint
+      - check-success=denolint
+      - check-success=test (ubuntu-latest)
+      - check-success=test (macos-latest)
+      - check-success=test (windows-latest)
     actions:
       queue:
         name: default

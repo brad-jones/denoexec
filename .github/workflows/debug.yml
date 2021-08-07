@@ -27,14 +27,10 @@ jobs:
           tag: v${{ steps.to.outputs.TO_VERSION }}
           custom_outputs: |
             body:data.body
-      - run: |
-          echo "${{ steps.from.outputs.FROM_VERSION }}";
-          echo "${{ steps.to.outputs.TO_VERSION }}";
-          echo "${{ steps.changelog.outputs.body }}";
-      #- uses: peter-evans/create-pull-request@v3.10.0
-      #  with:
-      #    title: "fix(deps): bump deno from ${{ steps.from.outputs.FROM_VERSION }} to ${{ steps.to.outputs.TO_VERSION }}"
-      #    branch: dependencies/deno
-      #    delete-branch: true
-      #    labels: dependencies
-      #    body: ${{ steps.changelog.outputs.body }}
+      - uses: peter-evans/create-pull-request@v3.10.0
+        with:
+          title: "fix(deps): bump deno from ${{ steps.from.outputs.FROM_VERSION }} to ${{ steps.to.outputs.TO_VERSION }}"
+          branch: dependencies/deno
+          delete-branch: true
+          labels: dependencies
+          body: ${{ steps.changelog.outputs.body }}
