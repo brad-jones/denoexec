@@ -1,0 +1,16 @@
+queue_rules:
+  - name: default
+    conditions:
+      - check-success=commitlint
+      - check-success=denolint
+      - check-success=test
+
+pull_request_rules:
+  - name: Automatic merge of dependency updates
+    conditions:
+      - base=master
+      - label=dependencies
+    actions:
+      queue:
+        name: default
+        method: squash
