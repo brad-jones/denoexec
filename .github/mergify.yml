@@ -16,3 +16,11 @@ pull_request_rules:
       queue:
         name: default
         method: squash
+  - name: Delete branch after merge
+    conditions:
+      - merged
+      - base=master
+      - label=dependencies
+    actions:
+      delete_head_branch:
+        force: false
