@@ -19,7 +19,7 @@ jobs:
       - id: to
         run: echo ::set-output name=TO_VERSION::$(asdf current deno 2>&1 | xargs -n 1 | sed -n '2p')
       - id: changelog
-        uses: maxkomarychev/octions/octions/repos/get-release-by-tag@master
+        uses: maxkomarychev/octions/octions/repos/get-release-by-tag@v0.11.0
         with:
           token: ${{ github.token }}
           owner: denoland
@@ -27,6 +27,11 @@ jobs:
           tag: v${{ steps.to.outputs.TO_VERSION }}
           custom_outputs: |
             body:data.body
+      - id: generate_token
+        uses: tibdex/github-app-token@v1.3.0
+        with:
+          app_id: ${{ secrets.BOT_ID }}
+          private_key: ${{ secrets.BOT_KEY }}
       - uses: peter-evans/create-pull-request@v3.10.0
         with:
           title: "fix(deps): bump deno from ${{ steps.from.outputs.FROM_VERSION }} to ${{ steps.to.outputs.TO_VERSION }}"
@@ -34,3 +39,7 @@ jobs:
           delete-branch: true
           labels: dependencies
           body: ${{ steps.changelog.outputs.body }}
+          token: ${{ steps.generate_token.outputs.token }}
+
+
+# https://github.com/peter-evans/create-pull-request/blob/master/docs/concepts-guidelines.md#workarounds-to-trigger-further-workflow-runs
