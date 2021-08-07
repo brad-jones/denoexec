@@ -24,7 +24,7 @@ jobs:
           token: ${{ github.token }}
           owner: denoland
           repo: deno
-          tag: ${{ steps.to.outputs.TO_VERSION }}
+          tag: v${{ steps.to.outputs.TO_VERSION }}
           custom_outputs: |
             body:body
       - uses: peter-evans/create-pull-request@v3.10.0
