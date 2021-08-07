@@ -26,7 +26,7 @@ jobs:
           repo: deno
           tag: v${{ steps.to.outputs.TO_VERSION }}
           custom_outputs: |
-            body:body
+            body:data.body
       - run: |
           echo "${{ steps.from.outputs.FROM_VERSION }}";
           echo "${{ steps.to.outputs.TO_VERSION }}";
