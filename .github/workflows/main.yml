@@ -7,10 +7,6 @@ on:
 env:
   CI: true
 
-concurrency:
-  group: ${{ github.ref }}
-  cancel-in-progress: true
-
 jobs:
   commitlint:
     if: "! contains(github.event.head_commit.message, '[skip ci]')"
@@ -103,6 +99,9 @@ jobs:
     if: "! contains(github.event_name, 'pull_request')"
     needs: [commitlint, denolint, test]
     runs-on: ubuntu-latest
+    concurrency:
+      group: ${{ github.ref }}
+      cancel-in-progress: false
     env:
       GITHUB_TOKEN: ${{ github.token }}
     steps:
