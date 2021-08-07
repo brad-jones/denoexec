@@ -10,10 +10,9 @@ jobs:
   updatedeno:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v2.3.4
-      - name: Install the asdf tool version manager
-        uses: asdf-vm/actions/install@v1.1.0
-      - name: Update deno
-        run: asdf install deno latest && asdf local deno latest
+      - uses: actions/checkout@v2.3.4
+      - uses: asdf-vm/actions/setup@v1.1.0
+      - run: asdf plugin-add deno https://github.com/asdf-community/asdf-deno.git
+      - run: asdf install deno latest
+      - run: asdf local deno latest
       - run: git status
