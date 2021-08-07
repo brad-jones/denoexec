@@ -1,0 +1,38 @@
+on:
+  push:
+    branches:
+      - master
+
+env:
+  CI: true
+
+concurrency:
+  group: ${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ github.token }}
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v2.3.4
+      - name: Get nodejs version
+        run: echo ::set-output name=NODE_VERSION::$(cat .tool-versions | grep nodejs | xargs -n 1 | tail -n1)
+        shell: bash
+        id: nodev
+      - name: Install nodejs
+        uses: actions/setup-node@v2.4.0
+        with:
+          node-version: ${{ steps.nodev.outputs.NODE_VERSION }}
+      - name: Restore nodejs cache
+        uses: actions/cache@v2.1.6
+        with:
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: ${{ runner.os }}-node-
+          path: ~/.npm
+      - name: Install node deps
+        run: npm ci
+      - name: Execute semantic-release
+        run: npx semantic-release
