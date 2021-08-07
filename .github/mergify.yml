@@ -3,7 +3,9 @@ queue_rules:
     conditions:
       - check-success=commitlint
       - check-success=denolint
-      - check-success=test
+      - check-success=test (ubuntu-latest)
+      - check-success=test (macos-latest)
+      - check-success=test (windows-latest)
 
 pull_request_rules:
   - name: Automatic merge of dependency updates
