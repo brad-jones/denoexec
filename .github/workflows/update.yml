@@ -1,6 +1,6 @@
 on:
   schedule:
-    - cron: '*/5 * * * *'
+    - cron: '0 * * * *'
 
 env:
   CI: true
@@ -9,10 +9,34 @@ jobs:
   updatedeno:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v2.3.4
-      - name: Install the asdf tool version manager
-        uses: asdf-vm/actions/install@v1.1.0
-      - name: Update deno
-        run: asdf local deno latest
-      - run: git status
+      - uses: actions/checkout@v2.3.4
+      - uses: asdf-vm/actions/setup@v1.1.0
+      - run: asdf plugin-add deno https://github.com/asdf-community/asdf-deno.git
+      - id: from
+        run: echo ::set-output name=FROM_VERSION::$(asdf current deno 2>&1 | xargs -n 1 | sed -n '2p')
+      - run: asdf install deno latest && asdf local deno latest
+      - id: to
+        run: echo ::set-output name=TO_VERSION::$(asdf current deno 2>&1 | xargs -n 1 | sed -n '2p')
+      - id: changelog
+        uses: maxkomarychev/octions/octions/repos/get-release-by-tag@v0.11.0
+        with:
+          token: ${{ github.token }}
+          owner: denoland
+          repo: deno
+          tag: v${{ steps.to.outputs.TO_VERSION }}
+          custom_outputs: |
+            body:data.body
+      - id: generate_token
+        uses: tibdex/github-app-token@v1.3.0
+        with:
+          app_id: ${{ secrets.BOT_ID }}
+          private_key: ${{ secrets.BOT_KEY }}
+      - uses: peter-evans/create-pull-request@v3.10.0
+        with:
+          title: "fix(deps): bump deno from ${{ steps.from.outputs.FROM_VERSION }} to ${{ steps.to.outputs.TO_VERSION }}"
+          commit-message: "fix(deps): bump deno from ${{ steps.from.outputs.FROM_VERSION }} to ${{ steps.to.outputs.TO_VERSION }}"
+          branch: dependencies/deno
+          delete-branch: true
+          labels: dependencies
+          body: ${{ steps.changelog.outputs.body }}
+          token: ${{ steps.generate_token.outputs.token }}
