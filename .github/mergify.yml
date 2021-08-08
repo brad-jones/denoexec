@@ -8,6 +8,15 @@ queue_rules:
       - check-success=test (windows-latest)
 
 pull_request_rules:
+  - name: Automatic merge of approved PRs
+    conditions:
+      - base=master
+      - "#approved-reviews-by>=1"
+    actions:
+      queue:
+        name: default
+        method: squash
+        commit_message: title+body
   - name: Automatic merge of dependency updates
     conditions:
       - base=master
@@ -16,11 +25,11 @@ pull_request_rules:
       queue:
         name: default
         method: squash
+        commit_message: title+body
   - name: Delete branch after merge
     conditions:
       - merged
       - base=master
-      - label=dependencies
     actions:
       delete_head_branch:
         force: false

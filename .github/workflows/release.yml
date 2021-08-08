@@ -2,7 +2,6 @@ on:
   push:
     branches:
       - master
-  pull_request:
 
 env:
   CI: true
@@ -14,19 +13,12 @@ jobs:
       github.event.head_commit.committer.username != 'web-flow'
     runs-on: ubuntu-latest
     steps:
-      - name: Lint PR title / body.
-        if: "contains(github.event_name, 'pull_request')"
-        run: |
-          echo "${{ github.event.pull_request.title }}";
-          echo "${{ github.event.pull_request.body }}";
       - name: Checkout repo
-        if: "!contains(github.event_name, 'pull_request')"
         uses: actions/checkout@v2.3.4
         with:
           fetch-depth: 0
       - name: Lint commits
         uses: wagoid/commitlint-github-action@v4.1.1
-        if: "!contains(github.event_name, 'pull_request')"
         with:
           configFile: ./.commitlintrc.yml
           failOnWarnings: true
@@ -57,10 +49,13 @@ jobs:
     if: |
       !contains(github.event.head_commit.message, '[skip ci]') &&
       github.event.head_commit.committer.username != 'web-flow'
-    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        os:
+          - ubuntu-latest
+          - macos-latest
+          - windows-latest
+    runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout repo
         uses: actions/checkout@v2.3.4
@@ -91,14 +86,13 @@ jobs:
       always() &&
       (needs.commitlint.result == 'success' || needs.commitlint.result == 'skipped') &&
       (needs.denolint.result == 'success' || needs.denolint.result == 'skipped') &&
-      (needs.test.result == 'success' || needs.test.result == 'skipped') &&
-      !contains(github.event_name, 'pull_request')
-    runs-on: ubuntu-latest
+      (needs.test.result == 'success' || needs.test.result == 'skipped')
     concurrency:
       group: ${{ github.ref }}
       cancel-in-progress: false
     env:
       GITHUB_TOKEN: ${{ github.token }}
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
         uses: actions/checkout@v2.3.4
