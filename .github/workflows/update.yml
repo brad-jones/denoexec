@@ -7,18 +7,25 @@ env:
   CI: true
 
 jobs:
-  updatedeno:
+  updateDeno:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2.3.4
-      - uses: asdf-vm/actions/setup@v1.1.0
-      - run: asdf plugin-add deno https://github.com/asdf-community/asdf-deno.git
-      - id: from
+      - name: Checkout repo
+        uses: actions/checkout@v2.3.4
+      - name: Install asdf tool version manager
+        uses: asdf-vm/actions/setup@v1.1.0
+      - name: Install deno asdf plugin
+        run: asdf plugin-add deno https://github.com/asdf-community/asdf-deno.git
+      - name: Get current deno version
         run: echo ::set-output name=FROM_VERSION::$(asdf current deno 2>&1 | xargs -n 1 | sed -n '2p')
-      - run: asdf install deno latest && asdf local deno latest
-      - id: to
+        id: from
+      - name: Update deno to the latest version
+        run: asdf install deno latest && asdf local deno latest
+      - name: Get new deno version
         run: echo ::set-output name=TO_VERSION::$(asdf current deno 2>&1 | xargs -n 1 | sed -n '2p')
-      - id: changelog
+        id: to
+      - name: Fetch the changelog for deno
+        id: changelog
         uses: maxkomarychev/octions/octions/repos/get-release-by-tag@v0.11.0
         with:
           token: ${{ github.token }}
@@ -27,33 +34,81 @@ jobs:
           tag: v${{ steps.to.outputs.TO_VERSION }}
           custom_outputs: |
             body:data.body
-      - id: generate_token
+      - name: Authenticate as the denoexec bot
+        id: generate_token
         uses: tibdex/github-app-token@v1.3.0
         with:
           app_id: ${{ secrets.BOT_ID }}
           private_key: ${{ secrets.BOT_KEY }}
-      - uses: peter-evans/create-pull-request@v3.10.0
+      - name: Create a PR with the updates
+        uses: peter-evans/create-pull-request@v3.10.0
         with:
           title: "fix(deps): bump deno from ${{ steps.from.outputs.FROM_VERSION }} to ${{ steps.to.outputs.TO_VERSION }}"
-          commit-message: "fix(deps): bump deno from ${{ steps.from.outputs.FROM_VERSION }} to ${{ steps.to.outputs.TO_VERSION }}"
           branch: dependencies/deno
           delete-branch: true
           labels: dependencies
           body: ${{ steps.changelog.outputs.body }}
           token: ${{ steps.generate_token.outputs.token }}
 
-  updatenodejs:
+  updateDenoModules:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2.3.4
-      - uses: asdf-vm/actions/setup@v1.1.0
-      - run: asdf plugin add nodejs https://github.com/asdf-vm/asdf-nodejs.git
-      - id: from
+      - name: Checkout repo
+        uses: actions/checkout@v2.3.4
+      - name: Get deno version
+        run: echo ::set-output name=DENO_VERSION::$(cat .tool-versions | grep deno | xargs -n 1 | tail -n1)
+        id: denov
+      - name: Install deno
+        uses: denoland/setup-deno@v1.1.0
+        with:
+          deno-version: ${{ steps.denov.outputs.DENO_VERSION }}
+      - name: Restore deno cache
+        uses: actions/cache@v2.1.6
+        with:
+          key: ${{ runner.os }}-deno-${{ hashFiles('**/udd.lock.json') }}
+          restore-keys: ${{ runner.os }}-deno-
+          path: |
+            ~/.cache/deno/deps
+            ~/Library/Caches/deno
+            ~/AppData/Local/deno/deps
+      - name: Update deno modules
+        run: |
+          deno cache --lock=udd.lock.json &&
+          deno run -A --lock=udd.lock.json --cached-only https://deno.land/x/udd@0.5.0/main.ts deps.ts
+      - name: Authenticate as the denoexec bot
+        id: generate_token
+        uses: tibdex/github-app-token@v1.3.0
+        with:
+          app_id: ${{ secrets.BOT_ID }}
+          private_key: ${{ secrets.BOT_KEY }}
+      - name: Create a PR with the updates
+        uses: peter-evans/create-pull-request@v3.10.0
+        with:
+          title: "fix(deps): bump deno modules"
+          branch: dependencies/deno-modules
+          delete-branch: true
+          labels: dependencies
+          token: ${{ steps.generate_token.outputs.token }}
+
+  updateNodejs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v2.3.4
+      - name: Install asdf tool version manager
+        uses: asdf-vm/actions/setup@v1.1.0
+      - name: Install nodejs asdf plugin
+        run: asdf plugin add nodejs https://github.com/asdf-vm/asdf-nodejs.git
+      - name: Get current nodejs version
         run: echo ::set-output name=FROM_VERSION::$(asdf current nodejs 2>&1 | xargs -n 1 | sed -n '2p')
-      - run: asdf install nodejs latest && asdf local nodejs latest
-      - id: to
+        id: from
+      - name: Update nodejs to the latest version
+        run: asdf install nodejs latest && asdf local nodejs latest
+      - name: Get new nodejs version
         run: echo ::set-output name=TO_VERSION::$(asdf current nodejs 2>&1 | xargs -n 1 | sed -n '2p')
-      - id: changelog
+        id: to
+      - name: Fetch the changelog for nodejs
+        id: changelog
         uses: maxkomarychev/octions/octions/repos/get-release-by-tag@v0.11.0
         with:
           token: ${{ github.token }}
@@ -62,12 +117,14 @@ jobs:
           tag: v${{ steps.to.outputs.TO_VERSION }}
           custom_outputs: |
             body:data.body
-      - id: generate_token
+      - name: Authenticate as the denoexec bot
+        id: generate_token
         uses: tibdex/github-app-token@v1.3.0
         with:
           app_id: ${{ secrets.BOT_ID }}
           private_key: ${{ secrets.BOT_KEY }}
-      - uses: peter-evans/create-pull-request@v3.10.0
+      - name: Create a PR with the updates
+        uses: peter-evans/create-pull-request@v3.10.0
         with:
           title: "fix(deps): bump nodejs from ${{ steps.from.outputs.FROM_VERSION }} to ${{ steps.to.outputs.TO_VERSION }}"
           commit-message: "fix(deps): bump nodejs from ${{ steps.from.outputs.FROM_VERSION }} to ${{ steps.to.outputs.TO_VERSION }}"
