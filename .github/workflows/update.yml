@@ -127,9 +127,43 @@ jobs:
         uses: peter-evans/create-pull-request@v3.10.0
         with:
           title: "fix(deps): bump nodejs from ${{ steps.from.outputs.FROM_VERSION }} to ${{ steps.to.outputs.TO_VERSION }}"
-          commit-message: "fix(deps): bump nodejs from ${{ steps.from.outputs.FROM_VERSION }} to ${{ steps.to.outputs.TO_VERSION }}"
           branch: dependencies/nodejs
           delete-branch: true
           labels: dependencies
           body: ${{ steps.changelog.outputs.body }}
+          token: ${{ steps.generate_token.outputs.token }}
+
+  updateNodejsModules:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v2.3.4
+      - name: Get nodejs version
+        run: echo ::set-output name=NODE_VERSION::$(cat .tool-versions | grep nodejs | xargs -n 1 | tail -n1)
+        id: nodev
+      - name: Install nodejs
+        uses: actions/setup-node@v2.4.0
+        with:
+          node-version: ${{ steps.nodev.outputs.NODE_VERSION }}
+      - name: Restore nodejs cache
+        uses: actions/cache@v2.1.6
+        with:
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: ${{ runner.os }}-node-
+          path: ~/.npm
+      - name: Update nodejs modules
+        run: npm update
+      - name: Authenticate as the denoexec bot
+        id: generate_token
+        uses: tibdex/github-app-token@v1.3.0
+        with:
+          app_id: ${{ secrets.BOT_ID }}
+          private_key: ${{ secrets.BOT_KEY }}
+      - name: Create a PR with the updates
+        uses: peter-evans/create-pull-request@v3.10.0
+        with:
+          title: "fix(deps): bump deno modules"
+          branch: dependencies/nodejs-modules
+          delete-branch: true
+          labels: dependencies
           token: ${{ steps.generate_token.outputs.token }}
