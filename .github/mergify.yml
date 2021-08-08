@@ -8,7 +8,7 @@ queue_rules:
       - check-success=test (windows-latest)
 
 pull_request_rules:
-  - name: Automatic merge of approved PRs
+  - name: Merge Approved PRs
     conditions:
       - base=master
       - or:
@@ -19,7 +19,7 @@ pull_request_rules:
         name: default
         method: squash
         commit_message: title+body
-  - name: Automatic merge of dependency updates
+  - name: Merge Dependency Updates
     conditions:
       - base=master
       - label=dependencies
@@ -28,6 +28,14 @@ pull_request_rules:
         name: default
         method: squash
         commit_message: title+body
+  - name: Keep PRs Up To Date
+    conditions:
+      - -conflict # skip PRs with conflicts
+      - -draft # filter-out GH draft PRs
+      - -label=lgtm
+      - -label=dependencies
+    actions:
+      update:
   - name: Delete branch after merge
     conditions:
       - merged
