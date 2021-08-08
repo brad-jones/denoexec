@@ -1,0 +1,116 @@
+on:
+  push:
+    branches:
+      - master
+
+env:
+  CI: true
+
+jobs:
+  commitlint:
+    if: |
+      !contains(github.event.head_commit.message, '[skip ci]') &&
+      github.event.head_commit.committer.username != 'web-flow'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v2.3.4
+        with:
+          fetch-depth: 0
+      - name: Lint commits
+        uses: wagoid/commitlint-github-action@v4.1.1
+        with:
+          configFile: ./.commitlintrc.yml
+          failOnWarnings: true
+          firstParent: false
+
+  denolint:
+    if: |
+      !contains(github.event.head_commit.message, '[skip ci]') &&
+      github.event.head_commit.committer.username != 'web-flow'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v2.3.4
+      - name: Get deno version
+        run: echo ::set-output name=DENO_VERSION::$(cat .tool-versions | grep deno | xargs -n 1 | tail -n1)
+        shell: bash
+        id: denov
+      - name: Install deno
+        uses: denoland/setup-deno@v1.1.0
+        with:
+          deno-version: ${{ steps.denov.outputs.DENO_VERSION }}
+      - name: Check file format & style
+        run: deno fmt --check --ignore="node_modules,deps.lock.json,CHANGELOG.md"
+      - name: Lint JavaScript/TypeScript source code
+        run: deno lint --ignore="node_modules,deps.lock.json,CHANGELOG.md"
+
+  test:
+    if: |
+      !contains(github.event.head_commit.message, '[skip ci]') &&
+      github.event.head_commit.committer.username != 'web-flow'
+    strategy:
+      matrix:
+        os:
+          - ubuntu-latest
+          - macos-latest
+          - windows-latest
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v2.3.4
+      - name: Get deno version
+        run: echo ::set-output name=DENO_VERSION::$(cat .tool-versions | grep deno | xargs -n 1 | tail -n1)
+        shell: bash
+        id: denov
+      - name: Install deno
+        uses: denoland/setup-deno@v1.1.0
+        with:
+          deno-version: ${{ steps.denov.outputs.DENO_VERSION }}
+      - name: Restore deno cache
+        uses: actions/cache@v2.1.6
+        with:
+          key: ${{ runner.os }}-deno-${{ hashFiles('**/deps.lock.json') }}
+          restore-keys: ${{ runner.os }}-deno-
+          path: |
+            ~/.cache/deno/deps
+            ~/Library/Caches/deno
+            ~/AppData/Local/deno/deps
+      - name: Execute deno tests
+        run: deno test -A --unstable --lock deps.lock.json lib/
+
+  release:
+    needs: [commitlint, denolint, test]
+    # see: https://github.com/actions/runner/issues/491
+    if: |
+      always() &&
+      (needs.commitlint.result == 'success' || needs.commitlint.result == 'skipped') &&
+      (needs.denolint.result == 'success' || needs.denolint.result == 'skipped') &&
+      (needs.test.result == 'success' || needs.test.result == 'skipped')
+    concurrency:
+      group: ${{ github.ref }}
+      cancel-in-progress: false
+    env:
+      GITHUB_TOKEN: ${{ github.token }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v2.3.4
+      - name: Get nodejs version
+        run: echo ::set-output name=NODE_VERSION::$(cat .tool-versions | grep nodejs | xargs -n 1 | tail -n1)
+        shell: bash
+        id: nodev
+      - name: Install nodejs
+        uses: actions/setup-node@v2.4.0
+        with:
+          node-version: ${{ steps.nodev.outputs.NODE_VERSION }}
+      - name: Restore nodejs cache
+        uses: actions/cache@v2.1.6
+        with:
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: ${{ runner.os }}-node-
+          path: ~/.npm
+      - name: Install node deps
+        run: npm ci
+      - name: Execute semantic-release
+        run: npx semantic-release

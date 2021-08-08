@@ -8,24 +8,38 @@ queue_rules:
       - check-success=test (windows-latest)
 
 pull_request_rules:
-  - name: Automatic merge of dependency updates
+  - name: Merge Approved PRs
     conditions:
       - base=master
-      - label=dependencies
-      - check-success=commitlint
-      - check-success=denolint
-      - check-success=test (ubuntu-latest)
-      - check-success=test (macos-latest)
-      - check-success=test (windows-latest)
+      - or:
+        - "#approved-reviews-by>=1"
+        - label=lgtm
     actions:
       queue:
         name: default
         method: squash
+        commit_message: title+body
+  - name: Merge Dependency Updates
+    conditions:
+      - base=master
+      - label=dependencies
+    actions:
+      queue:
+        name: default
+        method: squash
+        commit_message: title+body
+  - name: Keep PRs Up To Date
+    conditions:
+      - -conflict # skip PRs with conflicts
+      - -draft # filter-out GH draft PRs
+      - -label=lgtm
+      - -label=dependencies
+    actions:
+      update:
   - name: Delete branch after merge
     conditions:
       - merged
       - base=master
-      - label=dependencies
     actions:
       delete_head_branch:
         force: false
