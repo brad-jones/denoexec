@@ -1,10 +1,15 @@
-on: pull_request
+on:
+  push:
+    branches:
+      - master
+  pull_request:
 
 env:
   CI: true
 
 jobs:
   commitlint:
+    if: "! contains(github.event.head_commit.message, '[skip ci]')"
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
@@ -18,6 +23,7 @@ jobs:
           firstParent: false
 
   denolint:
+    if: "! contains(github.event.head_commit.message, '[skip ci]')"
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
@@ -36,6 +42,7 @@ jobs:
         run: deno lint --ignore="node_modules,deps.lock.json,CHANGELOG.md"
 
   test:
+    if: "! contains(github.event.head_commit.message, '[skip ci]')"
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -62,3 +69,34 @@ jobs:
             ~/AppData/Local/deno/deps
       - name: Execute deno tests
         run: deno test -A --unstable --lock deps.lock.json lib/
+
+  release:
+    if: "! contains(github.event_name, 'pull_request')"
+    needs: [commitlint, denolint, test]
+    runs-on: ubuntu-latest
+    concurrency:
+      group: ${{ github.ref }}
+      cancel-in-progress: false
+    env:
+      GITHUB_TOKEN: ${{ github.token }}
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v2.3.4
+      - name: Get nodejs version
+        run: echo ::set-output name=NODE_VERSION::$(cat .tool-versions | grep nodejs | xargs -n 1 | tail -n1)
+        shell: bash
+        id: nodev
+      - name: Install nodejs
+        uses: actions/setup-node@v2.4.0
+        with:
+          node-version: ${{ steps.nodev.outputs.NODE_VERSION }}
+      - name: Restore nodejs cache
+        uses: actions/cache@v2.1.6
+        with:
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: ${{ runner.os }}-node-
+          path: ~/.npm
+      - name: Install node deps
+        run: npm ci
+      - name: Execute semantic-release
+        run: npx semantic-release
