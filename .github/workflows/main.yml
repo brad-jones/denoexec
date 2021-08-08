@@ -11,7 +11,7 @@ jobs:
   debug:
     runs-on: ubuntu-latest
     steps:
-      - run: echo "${{ github }}";
+      - run: echo "console.log(JSON.stringify(${{ github }}))" | node -
 
   commitlint:
     if: "! contains(github.event.head_commit.message, '[skip ci]')"
