@@ -10,8 +10,8 @@ env:
 jobs:
   commitlint:
     if: |
-      !contains(github.event.head_commit.message, '[skip ci]')
-      && github.event.head_commit.committer.username != 'web-flow'
+      !contains(github.event.head_commit.message, '[skip ci]') &&
+      github.event.head_commit.committer.username != 'web-flow'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
@@ -26,8 +26,8 @@ jobs:
 
   denolint:
     if: |
-      !contains(github.event.head_commit.message, '[skip ci]')
-      && github.event.head_commit.committer.username != 'web-flow'
+      !contains(github.event.head_commit.message, '[skip ci]') &&
+      github.event.head_commit.committer.username != 'web-flow'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
@@ -47,8 +47,8 @@ jobs:
 
   test:
     if: |
-      !contains(github.event.head_commit.message, '[skip ci]')
-      && github.event.head_commit.committer.username != 'web-flow'
+      !contains(github.event.head_commit.message, '[skip ci]') &&
+      github.event.head_commit.committer.username != 'web-flow'
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -77,8 +77,14 @@ jobs:
         run: deno test -A --unstable --lock deps.lock.json lib/
 
   release:
-    if: "! contains(github.event_name, 'pull_request')"
     needs: [commitlint, denolint, test]
+    # see: https://github.com/actions/runner/issues/491
+    if: |
+      always() &&
+      (needs.commitlint.result == 'success' || needs.commitlint.result == 'skipped') &&
+      (needs.denolint.result == 'success' || needs.denolint.result == 'skipped') &&
+      (needs.test.result == 'success' || needs.test.result == 'skipped') &&
+      !contains(github.event_name, 'pull_request')
     runs-on: ubuntu-latest
     concurrency:
       group: ${{ github.ref }}
