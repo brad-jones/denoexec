@@ -7,6 +7,8 @@ jobs:
   commitlint:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout repo
+        uses: actions/checkout@v2.3.4
       - name: Get nodejs version
         run: echo ::set-output name=NODE_VERSION::$(cat .tool-versions | grep nodejs | xargs -n 1 | tail -n1)
         shell: bash
