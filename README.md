@@ -39,3 +39,5 @@ await exec({ cmd: ["ping", "1.1.1.1"] });
 ```
 
 > see [./example/main.ts](./example/main.ts) for more details
+
+sdgfhdsgtfh
