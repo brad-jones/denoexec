@@ -8,9 +8,7 @@ env:
 
 jobs:
   commitlint:
-    if: |
-      !contains(github.event.head_commit.message, '[skip ci]') &&
-      github.event.head_commit.committer.username != 'web-flow'
+    if: github.event.head_commit.committer.username != 'web-flow'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
@@ -25,9 +23,7 @@ jobs:
           firstParent: false
 
   denolint:
-    if: |
-      !contains(github.event.head_commit.message, '[skip ci]') &&
-      github.event.head_commit.committer.username != 'web-flow'
+    if: github.event.head_commit.committer.username != 'web-flow'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
@@ -45,9 +41,7 @@ jobs:
         run: deno lint --ignore="node_modules,deps.lock.json,CHANGELOG.md"
 
   test:
-    if: |
-      !contains(github.event.head_commit.message, '[skip ci]') &&
-      github.event.head_commit.committer.username != 'web-flow'
+    if: github.event.head_commit.committer.username != 'web-flow'
     strategy:
       matrix:
         os:
