@@ -31,7 +31,7 @@ jobs:
       - name: Install node deps
         run: npm ci
       - name: Lint PR title & body.
-        run: echo "${{ github.event.pull_request.title }} (#${{ github.event.pull_request.number }})\n${{ github.event.pull_request.body }}" | npx commitlint
+        run: echo -e "${{ github.event.pull_request.title }} (#${{ github.event.pull_request.number }})\n${{ github.event.pull_request.body }}" | npx commitlint
 
   denolint:
     runs-on: ubuntu-latest
