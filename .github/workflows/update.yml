@@ -162,7 +162,7 @@ jobs:
       - name: Create a PR with the updates
         uses: peter-evans/create-pull-request@v3.10.0
         with:
-          title: "fix(deps): bump deno modules"
+          title: "fix(deps): bump nodejs modules"
           branch: dependencies/nodejs-modules
           delete-branch: true
           labels: dependencies
