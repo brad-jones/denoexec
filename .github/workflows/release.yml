@@ -89,8 +89,6 @@ jobs:
     concurrency:
       group: ${{ github.ref }}
       cancel-in-progress: false
-    env:
-      GITHUB_TOKEN: ${{ github.token }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
@@ -110,5 +108,13 @@ jobs:
           path: ~/.npm
       - name: Install node deps
         run: npm ci
+      - name: Authenticate as the denoexec bot
+        id: generate_token
+        uses: tibdex/github-app-token@v1.3.0
+        with:
+          app_id: ${{ secrets.BOT_ID }}
+          private_key: ${{ secrets.BOT_KEY }}
       - name: Execute semantic-release
-        run: npx semantic-release
+        env:
+          GITHUB_TOKEN: ${{ steps.generate_token.outputs.token }}
+        run: ${{ steps.generate_token.outputs.token }} npx semantic-release
