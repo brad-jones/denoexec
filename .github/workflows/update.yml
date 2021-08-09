@@ -85,6 +85,7 @@ jobs:
         uses: peter-evans/create-pull-request@v3.10.0
         with:
           title: "fix(deps): bump deno modules"
+          body: "Automated changes by https://github.com/peter-evans/create-pull-request"
           branch: dependencies/deno-modules
           delete-branch: true
           labels: dependencies
@@ -163,6 +164,7 @@ jobs:
         uses: peter-evans/create-pull-request@v3.10.0
         with:
           title: "fix(deps): bump nodejs modules"
+          body: "Automated changes by https://github.com/peter-evans/create-pull-request"
           branch: dependencies/nodejs-modules
           delete-branch: true
           labels: dependencies
