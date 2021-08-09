@@ -1,3 +1,11 @@
+## [1.0.3](https://github.com/brad-jones/denoexec/compare/v1.0.2...v1.0.3) (2021-08-09)
+
+
+### Bug Fixes
+
+* **deps:** bump deno modules ([#21](https://github.com/brad-jones/denoexec/issues/21)) ([c07689f](https://github.com/brad-jones/denoexec/commit/c07689f1ac6efe7d6ec389c6405fb4e050aedb51))
+* **deps:** bump nodejs modules ([#22](https://github.com/brad-jones/denoexec/issues/22)) ([bf2ea04](https://github.com/brad-jones/denoexec/commit/bf2ea04892a050639419e8c2664be218320accc0))
+
 ## [1.0.2](https://github.com/brad-jones/denoexec/compare/v1.0.1...v1.0.2) (2021-08-07)
 
 
