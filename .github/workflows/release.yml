@@ -117,4 +117,4 @@ jobs:
       - name: Execute semantic-release
         env:
           GITHUB_TOKEN: ${{ steps.generate_token.outputs.token }}
-        run: ${{ steps.generate_token.outputs.token }} npx semantic-release
+        run: npx semantic-release
