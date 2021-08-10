@@ -1,3 +1,10 @@
+## [1.0.7](https://github.com/brad-jones/denoexec/compare/v1.0.6...v1.0.7) (2021-08-10)
+
+
+### Bug Fixes
+
+* **deps:** bump deno from 1.12.2 to 1.13.0 ([#25](https://github.com/brad-jones/denoexec/issues/25)) ([f37d17f](https://github.com/brad-jones/denoexec/commit/f37d17f761da1d667ad54a753223cdcc5d7e9d31)), closes [#11542](https://github.com/brad-jones/denoexec/issues/11542) [#11324](https://github.com/brad-jones/denoexec/issues/11324) [#10365](https://github.com/brad-jones/denoexec/issues/10365) [#11152](https://github.com/brad-jones/denoexec/issues/11152) [#11544](https://github.com/brad-jones/denoexec/issues/11544) [#11568](https://github.com/brad-jones/denoexec/issues/11568) [#11598](https://github.com/brad-jones/denoexec/issues/11598) [#11421](https://github.com/brad-jones/denoexec/issues/11421) [#11367](https://github.com/brad-jones/denoexec/issues/11367) [#11387](https://github.com/brad-jones/denoexec/issues/11387) [#11491](https://github.com/brad-jones/denoexec/issues/11491) [#11572](https://github.com/brad-jones/denoexec/issues/11572) [#11582](https://github.com/brad-jones/denoexec/issues/11582) [#11527](https://github.com/brad-jones/denoexec/issues/11527) [#11555](https://github.com/brad-jones/denoexec/issues/11555) [#11612](https://github.com/brad-jones/denoexec/issues/11612) [#11590](https://github.com/brad-jones/denoexec/issues/11590) [#11592](https://github.com/brad-jones/denoexec/issues/11592) [#11578](https://github.com/brad-jones/denoexec/issues/11578) [#11448](https://github.com/brad-jones/denoexec/issues/11448) [#11571](https://github.com/brad-jones/denoexec/issues/11571) [#11551](https://github.com/brad-jones/denoexec/issues/11551) [#10702](https://github.com/brad-jones/denoexec/issues/10702) [#11536](https://github.com/brad-jones/denoexec/issues/11536) [#11557](https://github.com/brad-jones/denoexec/issues/11557) [#11614](https://github.com/brad-jones/denoexec/issues/11614) [#11562](https://github.com/brad-jones/denoexec/issues/11562)
+
 ## [1.0.6](https://github.com/brad-jones/denoexec/compare/v1.0.5...v1.0.6) (2021-08-10)
 
 
