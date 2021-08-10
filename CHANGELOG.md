@@ -1,3 +1,10 @@
+## [1.0.4](https://github.com/brad-jones/denoexec/compare/v1.0.3...v1.0.4) (2021-08-10)
+
+
+### Bug Fixes
+
+* **deps:** bump deno modules ([#23](https://github.com/brad-jones/denoexec/issues/23)) ([a34df0a](https://github.com/brad-jones/denoexec/commit/a34df0a819823d9a6885490081b883d86534e50c))
+
 ## [1.0.3](https://github.com/brad-jones/denoexec/compare/v1.0.2...v1.0.3) (2021-08-09)
 
 
