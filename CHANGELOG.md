@@ -1,3 +1,10 @@
+## [1.0.9](https://github.com/brad-jones/denoexec/compare/v1.0.8...v1.0.9) (2021-08-11)
+
+
+### Bug Fixes
+
+* **deps:** bump nodejs modules ([#28](https://github.com/brad-jones/denoexec/issues/28)) ([691adf8](https://github.com/brad-jones/denoexec/commit/691adf8728dd308e1fab12759a190eeb1aada457))
+
 ## [1.0.8](https://github.com/brad-jones/denoexec/compare/v1.0.7...v1.0.8) (2021-08-10)
 
 
