@@ -24,16 +24,6 @@ jobs:
       - name: Get new deno version
         run: echo ::set-output name=TO_VERSION::$(asdf current deno 2>&1 | xargs -n 1 | sed -n '2p')
         id: to
-      - name: Fetch the changelog for deno
-        id: changelog
-        uses: maxkomarychev/octions/octions/repos/get-release-by-tag@v0.11.0
-        with:
-          token: ${{ github.token }}
-          owner: denoland
-          repo: deno
-          tag: v${{ steps.to.outputs.TO_VERSION }}
-          custom_outputs: |
-            body:data.body
       - name: Authenticate as the denoexec bot
         id: generate_token
         uses: tibdex/github-app-token@v1.3.0
@@ -47,7 +37,7 @@ jobs:
           branch: dependencies/deno
           delete-branch: true
           labels: dependencies
-          body: ${{ steps.changelog.outputs.body }}
+          body: "Automated changes by https://github.com/peter-evans/create-pull-request"
           token: ${{ steps.generate_token.outputs.token }}
 
   updateDenoModules:
@@ -109,16 +99,6 @@ jobs:
       - name: Get new nodejs version
         run: echo ::set-output name=TO_VERSION::$(asdf current nodejs 2>&1 | xargs -n 1 | sed -n '2p')
         id: to
-      - name: Fetch the changelog for nodejs
-        id: changelog
-        uses: maxkomarychev/octions/octions/repos/get-release-by-tag@v0.11.0
-        with:
-          token: ${{ github.token }}
-          owner: nodejs
-          repo: node
-          tag: v${{ steps.to.outputs.TO_VERSION }}
-          custom_outputs: |
-            body:data.body
       - name: Authenticate as the denoexec bot
         id: generate_token
         uses: tibdex/github-app-token@v1.3.0
@@ -132,7 +112,7 @@ jobs:
           branch: dependencies/nodejs
           delete-branch: true
           labels: dependencies
-          body: ${{ steps.changelog.outputs.body }}
+          body: "Automated changes by https://github.com/peter-evans/create-pull-request"
           token: ${{ steps.generate_token.outputs.token }}
 
   updateNodejsModules:
