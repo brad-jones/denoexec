@@ -1,3 +1,10 @@
+## [1.0.13](https://github.com/brad-jones/denoexec/compare/v1.0.12...v1.0.13) (2021-08-13)
+
+
+### Bug Fixes
+
+* **deps:** bump nodejs from 16.6.1 to 16.6.2 ([#29](https://github.com/brad-jones/denoexec/issues/29)) ([5a60be6](https://github.com/brad-jones/denoexec/commit/5a60be624ed460e630d7c49cc1c81b8363c68d7a))
+
 ## [1.0.12](https://github.com/brad-jones/denoexec/compare/v1.0.11...v1.0.12) (2021-08-12)
 
 
