@@ -11,6 +11,11 @@ pull_request_rules:
   - name: Merge Approved PRs
     conditions:
       - base=master
+      - check-success=commitlint
+      - check-success=denolint
+      - check-success=test (ubuntu-latest)
+      - check-success=test (macos-latest)
+      - check-success=test (windows-latest)
       - or:
         - "#approved-reviews-by>=1"
         - label=lgtm
@@ -23,6 +28,11 @@ pull_request_rules:
     conditions:
       - base=master
       - label=dependencies
+      - check-success=commitlint
+      - check-success=denolint
+      - check-success=test (ubuntu-latest)
+      - check-success=test (macos-latest)
+      - check-success=test (windows-latest)
     actions:
       queue:
         name: default
