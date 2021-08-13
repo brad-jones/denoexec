@@ -7,146 +7,31 @@ env:
   CI: true
 
 jobs:
-  updateDeno:
+  update:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
         uses: actions/checkout@v2.3.4
+
       - name: Install asdf tool version manager
-        uses: asdf-vm/actions/setup@v1.1.0
-      - name: Install deno asdf plugin
-        run: asdf plugin-add deno https://github.com/asdf-community/asdf-deno.git
-      - name: Get current deno version
-        run: echo ::set-output name=FROM_VERSION::$(asdf current deno 2>&1 | xargs -n 1 | sed -n '2p')
-        id: from
-      - name: Update deno to the latest version
-        run: asdf install deno latest && asdf local deno latest
-      - name: Get new deno version
-        run: echo ::set-output name=TO_VERSION::$(asdf current deno 2>&1 | xargs -n 1 | sed -n '2p')
-        id: to
-      - name: Authenticate as the denoexec bot
-        id: generate_token
-        uses: tibdex/github-app-token@v1.3.0
-        with:
-          app_id: ${{ secrets.BOT_ID }}
-          private_key: ${{ secrets.BOT_KEY }}
-      - name: Create a PR with the updates
-        uses: peter-evans/create-pull-request@v3.10.0
-        with:
-          title: "fix(deps): bump deno from ${{ steps.from.outputs.FROM_VERSION }} to ${{ steps.to.outputs.TO_VERSION }}"
-          branch: dependencies/deno
-          delete-branch: true
-          labels: dependencies
-          body: "Automated changes by https://github.com/peter-evans/create-pull-request"
-          token: ${{ steps.generate_token.outputs.token }}
+        uses: asdf-vm/actions/install@v1.1.0
 
-  updateDenoModules:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v2.3.4
-      - name: Get deno version
-        run: echo ::set-output name=DENO_VERSION::$(cat .tool-versions | grep deno | xargs -n 1 | tail -n1)
-        id: denov
-      - name: Install deno
-        uses: denoland/setup-deno@v1.1.0
-        with:
-          deno-version: ${{ steps.denov.outputs.DENO_VERSION }}
-      - name: Restore deno cache
-        uses: actions/cache@v2.1.6
-        with:
-          key: ${{ runner.os }}-deno-${{ hashFiles('**/udd.lock.json') }}
-          restore-keys: ${{ runner.os }}-deno-
-          path: |
-            ~/.cache/deno/deps
-            ~/Library/Caches/deno
-            ~/AppData/Local/deno/deps
-      - name: Update deno modules
-        run: |
-          deno cache --lock=udd.lock.json https://deno.land/x/udd@0.5.0/main.ts &&
-          deno run -A --lock=udd.lock.json --cached-only https://deno.land/x/udd@0.5.0/main.ts deps.ts &&
-          rm deps.lock.json && deno cache --lock=deps.lock.json --lock-write deps.ts
-      - name: Authenticate as the denoexec bot
-        id: generate_token
-        uses: tibdex/github-app-token@v1.3.0
-        with:
-          app_id: ${{ secrets.BOT_ID }}
-          private_key: ${{ secrets.BOT_KEY }}
-      - name: Create a PR with the updates
-        uses: peter-evans/create-pull-request@v3.10.0
-        with:
-          title: "fix(deps): bump deno modules"
-          body: "Automated changes by https://github.com/peter-evans/create-pull-request"
-          branch: dependencies/deno-modules
-          delete-branch: true
-          labels: dependencies
-          token: ${{ steps.generate_token.outputs.token }}
+      - name: Update all the things
+        run: task update
 
-  updateNodejs:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v2.3.4
-      - name: Install asdf tool version manager
-        uses: asdf-vm/actions/setup@v1.1.0
-      - name: Install nodejs asdf plugin
-        run: asdf plugin add nodejs https://github.com/asdf-vm/asdf-nodejs.git
-      - name: Get current nodejs version
-        run: echo ::set-output name=FROM_VERSION::$(asdf current nodejs 2>&1 | xargs -n 1 | sed -n '2p')
-        id: from
-      - name: Update nodejs to the latest version
-        run: asdf install nodejs latest && asdf local nodejs latest
-      - name: Get new nodejs version
-        run: echo ::set-output name=TO_VERSION::$(asdf current nodejs 2>&1 | xargs -n 1 | sed -n '2p')
-        id: to
       - name: Authenticate as the denoexec bot
         id: generate_token
         uses: tibdex/github-app-token@v1.3.0
         with:
           app_id: ${{ secrets.BOT_ID }}
           private_key: ${{ secrets.BOT_KEY }}
-      - name: Create a PR with the updates
-        uses: peter-evans/create-pull-request@v3.10.0
-        with:
-          title: "fix(deps): bump nodejs from ${{ steps.from.outputs.FROM_VERSION }} to ${{ steps.to.outputs.TO_VERSION }}"
-          branch: dependencies/nodejs
-          delete-branch: true
-          labels: dependencies
-          body: "Automated changes by https://github.com/peter-evans/create-pull-request"
-          token: ${{ steps.generate_token.outputs.token }}
 
-  updateNodejsModules:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v2.3.4
-      - name: Get nodejs version
-        run: echo ::set-output name=NODE_VERSION::$(cat .tool-versions | grep nodejs | xargs -n 1 | tail -n1)
-        id: nodev
-      - name: Install nodejs
-        uses: actions/setup-node@v2.4.0
-        with:
-          node-version: ${{ steps.nodev.outputs.NODE_VERSION }}
-      - name: Restore nodejs cache
-        uses: actions/cache@v2.1.6
-        with:
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: ${{ runner.os }}-node-
-          path: ~/.npm
-      - name: Update nodejs modules
-        run: npm update
-      - name: Authenticate as the denoexec bot
-        id: generate_token
-        uses: tibdex/github-app-token@v1.3.0
-        with:
-          app_id: ${{ secrets.BOT_ID }}
-          private_key: ${{ secrets.BOT_KEY }}
       - name: Create a PR with the updates
         uses: peter-evans/create-pull-request@v3.10.0
         with:
-          title: "fix(deps): bump nodejs modules"
+          title: "fix(deps): bump versions of all that we depend on"
           body: "Automated changes by https://github.com/peter-evans/create-pull-request"
-          branch: dependencies/nodejs-modules
+          branch: dependencies/all-the-things
           delete-branch: true
           labels: dependencies
           token: ${{ steps.generate_token.outputs.token }}
