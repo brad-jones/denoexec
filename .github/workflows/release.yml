@@ -36,9 +36,9 @@ jobs:
         with:
           deno-version: ${{ steps.denov.outputs.DENO_VERSION }}
       - name: Check file format & style
-        run: deno fmt --check --ignore="node_modules,deps.lock.json,CHANGELOG.md"
+        run: deno fmt --check --ignore="node_modules,deps.lock.json,udd.lock.json,CHANGELOG.md"
       - name: Lint JavaScript/TypeScript source code
-        run: deno lint --ignore="node_modules,deps.lock.json,CHANGELOG.md"
+        run: deno lint --ignore="node_modules,deps.lock.json,udd.lock.json,CHANGELOG.md"
 
   test:
     if: github.event.head_commit.committer.username != 'web-flow'
