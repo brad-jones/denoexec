@@ -65,29 +65,34 @@ task("pre-push", ["test"]);
 desc("Lint TypeScript source code");
 task("lint", [], async function () {
   const cmd = ["deno", "lint"];
+  const files: string[] = [];
   if (stagedFiles.length > 0) {
-    cmd.push(
+    files.push(
       ...stagedFiles.filter((_) =>
         _.endsWith(".ts") || _.endsWith(".tsx") || _.endsWith(".js") ||
         _.endsWith(".jsx")
       ),
     );
   } else {
-    cmd.push(
+    files.push(
       ...glob(
         "!(\\.asdf|node_modules)/**/*.{ts,tsx,js,jsx}",
         "*.{ts,tsx,js,jsx}",
       ),
     );
   }
-  await exec({ cmd, prefix: "lint" });
+  if (files.length > 0) {
+    cmd.push(...files);
+    await exec({ cmd, prefix: "lint" });
+  }
 });
 
 desc("Format TypeScript/JSON/Markdown files");
 task("fmt", [], async function () {
   const cmd = ["deno", "fmt"];
+  const files: string[] = [];
   if (stagedFiles.length > 0) {
-    cmd.push(
+    files.push(
       ...stagedFiles.filter((_) =>
         _.endsWith(".ts") || _.endsWith(".tsx") || _.endsWith(".js") ||
         _.endsWith(".jsx") || _.endsWith(".json") || _.endsWith(".jsonc") ||
@@ -95,7 +100,7 @@ task("fmt", [], async function () {
       ).filter((_) => !_.endsWith("lock.json")),
     );
   } else {
-    cmd.push(
+    files.push(
       ...glob(
         "!(\\.asdf|node_modules)/**/*.{ts,tsx,js,jsx,json,jsonc,md}",
         "*.{ts,tsx,js,jsx,json,jsonc,md}",
@@ -104,7 +109,10 @@ task("fmt", [], async function () {
       ),
     );
   }
-  await exec({ cmd, prefix: "fmt" });
+  if (files.length > 0) {
+    cmd.push(...files);
+    await exec({ cmd, prefix: "fmt" });
+  }
 });
 
 desc("Executes the test suite for this library");
