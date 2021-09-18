@@ -215,17 +215,22 @@ export class Process
 
         const status = await this.#p.status();
 
-        if (throwOnNonZeroExit && status.code !== 0 && this.#killed !== true) {
-          throw new NonZeroExitCode(
-            this.#pOpts,
-            status,
-            decoder.decode(
-              // some poorly written processes send error messages to stdout
-              stderrBuffer.length === 0
-                ? stdoutBuffer.bytes()
-                : stderrBuffer.bytes(),
-            ),
-          );
+        // If someone has killed or is killing a process they will be expecting
+        // to check the killed property on the ProcessResults so we don't
+        // consider a non-zero exit code in this case to be exceptional.
+        if (this.#killed !== true && this.#killing !== true) {
+          if (throwOnNonZeroExit && status.code !== 0) {
+            throw new NonZeroExitCode(
+              this.#pOpts,
+              status,
+              decoder.decode(
+                // some poorly written processes send error messages to stdout
+                stderrBuffer.length === 0
+                  ? stdoutBuffer.bytes()
+                  : stderrBuffer.bytes(),
+              ),
+            );
+          }
         }
 
         if (throwOnStdErr && stderrBuffer.length > 0) {
