@@ -1,0 +1,296 @@
+#!/usr/bin/env bash
+
+# ASDF Booptstrap Script
+# ======================
+# This script will do the following things:
+#  - Installs an isolated "local" version of https://asdf-vm.com
+#  - Installs all asdf plugins from ./.asdf/plugin-versions
+#  - Installs all tools defined in ./.tool-versions
+#  - Pass control over to one of the installed tools, set by the filename of this script.
+#  - Plus some other stuff...
+
+# Why the wrapping code block?
+#
+# see: https://unix.stackexchange.com/questions/331837
+{
+  # This will cause this script to exit as soon as any error is encountered,
+  # including unset variables & pipe failures.
+  #
+  # see: https://linuxtect.com/make-bash-shell-safe-with-set-euxo-pipefail/
+  set -euo pipefail;
+
+  function main {
+    # Grab the the directory that this script is located in & change into it.
+    # This is so that everything past this point can make reliable assumptions
+    # about the path & use simple relative paths without fear.
+    local scriptDir="$(get_script_dir)"; cd "${scriptDir}";
+
+    # Read in a dotenv file if it exists.
+    #
+    # see: https://github.com/motdotla/dotenv
+    load_dot_env;
+
+    # >>> START: Script Config
+    # --------------------------------------------------------------------------
+    # Feel free to edit this section to as needed.
+    # All variables are overideable through "ASDF_LOCAL_*" equivalents.
+    export ASDF_VERSION="${ASDF_LOCAL_VERSION:-"v0.8.1"}";
+    export ASDF_REPO="${ASDF_LOCAL_REPO:-"https://github.com/asdf-vm/asdf.git"}";
+    export ASDF_DIR="${ASDF_LOCAL_DIR:-"${scriptDir}/.asdf/${ASDF_VERSION}"}";
+    export ASDF_DATA_DIR="${ASDF_LOCAL_DATA_DIR:-"${ASDF_DIR}"}";
+    export ASDF_CONFIG_FILE="${ASDF_LOCAL_CONFIG_FILE:-"${scriptDir}/.asdf/.asdfrc"}";
+    export ASDF_PLUGIN_VERSIONS_FILENAME="${ASDF_LOCAL_PLUGIN_VERSIONS_FILENAME:-"${scriptDir}/.asdf/.plugin-versions"}";
+    export ASDF_DEFAULT_TOOL_VERSIONS_FILENAME="${ASDF_LOCAL_DEFAULT_TOOL_VERSIONS_FILENAME:-"${scriptDir}/.tool-versions"}";
+    # --------------------------------------------------------------------------
+    # >>> END: Script Config
+
+    # Detect the current operating system & architecture.
+    # This script works on most common Linux distros (including WSL) & MacOS.
+    local os="$(get_os)"; local arch="$(get_arch)";
+    if [ -z "${IGNORE_OS_ERRORS+x}" ]; then
+      if [ "${os}" == "unknown" ]; then
+          log_std_err "Error: failed to detect operating system!";
+          log_std_err "";
+          log_std_err "This script assumes a Linux (including WSL2) or";
+          log_std_err "MacOS environment, this is something else.";
+          log_std_err "";
+          log_std_err "Set 'IGNORE_OS_ERRORS=1' to ignore this check if";
+          log_std_err "you're happy to deal with any consequences.";
+          exit 1;
+      fi
+      if [ "${arch}" == "unknown" ]; then
+          log_std_err "Error: failed to detect operating system architecture!";
+          log_std_err "";
+          log_std_err "This script assumes a 64-bit environment,";
+          log_std_err "this is something else.";
+          log_std_err "";
+          log_std_err "Set 'IGNORE_OS_ERRORS=1' to ignore this check if";
+          log_std_err "you're happy to deal with any consequences.";
+          exit 1;
+      fi
+      if [ "${os}" == "not-wsl" ]; then
+        log_std_err "Error: unsupported *nix like environment!";
+        log_std_err "";
+        log_std_err "You appear to be running CYGWIN or similar on Windows.";
+        log_std_err "Please use WSL2 instead.";
+        log_std_err "see: https://docs.microsoft.com/en-us/windows/wsl";
+        log_std_err "";
+        log_std_err "Set 'IGNORE_OS_ERRORS=1' to ignore this check if";
+        log_std_err "you're happy to deal with any consequences.";
+        exit 1;
+      fi
+    fi
+
+    # While the whole point is to automate as much as possible for the user,
+    # it's not like we can bootstrap their entire operating system, there are
+    # some very basic tools that we assume exist.
+    ensure_command_exists "git" "https://git-scm.com";
+    ensure_command_exists "curl" "https://curl.se";
+    ensure_command_exists "tar" "https://www.gnu.org/software/tar";
+    ensure_command_exists "unzip" "https://linux.die.net/man/1/unzip";
+    ensure_command_exists "docker" "https://www.docker.com/products/docker-desktop";
+
+    # Delete the existing asdf directory if ASDF_LOCAL_REINSTALL=1
+    # This is handy for testing this script :)
+    if [ -n "${ASDF_LOCAL_REINSTALL+x}" ]; then
+      rm -rf "${ASDF_DIR}";
+    fi
+
+    # Install asdf, the asdf plugins & our tools.
+    install_asdf "${ASDF_REPO}" "${ASDF_VERSION}" "${ASDF_DIR}";
+    install_asdf_plugins "${ASDF_PLUGIN_VERSIONS_FILENAME}" "${ASDF_DIR}";
+    install_asdf_tools "${ASDF_DEFAULT_TOOL_VERSIONS_FILENAME}" "${ASDF_DIR}";
+
+    # Export the versions of our tools as environment variables so that the
+    # executed tool, for example a task runner, can use the same versions of
+    # those tools when building, pulling docker images.
+    #
+    # This is about ensuring that ".tool-versions" remains a single
+    # source of truth for the entire solution / project.
+    export_tool_versions "${ASDF_DEFAULT_TOOL_VERSIONS_FILENAME}";
+
+    # >>> START: Execution
+    # --------------------------------------------------------------------------
+    # Pass control over to one of the the tools that asdf installed for us,
+    # usually a task runner of some sort. eg: https://taskfile.dev perhaps
+
+    # By default we just execute an installed tool that has the same name as
+    # this very script. But feel free to comment this out and replace with
+    # whatever execuection or logic that makes sense for your application.
+    # exec "$(get_script_name)" "$@";
+
+    if [ ! -f "deps.lock.json" ]; then
+      deno cache --lock=deps.lock.json --lock-write ./deps.ts;
+    fi
+    if [ ! -f "Drakefile.lock.json" ]; then
+      deno cache --lock=Drakefile.lock.json --lock-write ./Drakefile.ts;
+    fi
+    exec deno run -A --lock=Drakefile.lock.json ./Drakefile.ts "$@";
+
+    # --------------------------------------------------------------------------
+    # >>> END: Execution
+  }
+
+  function get_script_name {
+    basename "${BASH_SOURCE[0]}";
+  }
+
+  # see: https://stackoverflow.com/questions/59895
+  function get_script_dir {
+    cd "$(dirname "${BASH_SOURCE[0]}")" &> /dev/null && pwd;
+  }
+
+  function load_dot_env {
+    local path="${1:-.env}";
+    if [ -f "${path}" ]; then
+      set -o allexport;
+      source "${path}";
+      set +o allexport;
+    fi
+  }
+
+  function log_std_err {
+    local msg="$1";
+    >&2 echo "${msg}" 1>&2;
+  }
+
+  function log_heading {
+    local msg="$1";
+    echo "! >>> ${msg}";
+    echo "! -------------------------------------------------------------------------------------------------------------------- !";
+  }
+
+  function log_missing_command {
+    local cmd="$1";
+    local link="$2";
+    log_std_err "Error: ${cmd} not found!";
+    log_std_err "";
+    log_std_err "This bootstrap script can not operate without it.";
+    log_std_err "Please install manually.";
+    log_std_err "";
+    log_std_err "see: ${link}";
+  }
+
+  function command_exist {
+    local cmd=""$1;
+    if ! command -v "${cmd}" >/dev/null; then
+      return 1
+    fi
+    return 0
+  }
+
+  function ensure_command_exists {
+    local cmd=""$1;
+    local link="$2";
+    if ! command_exist "${cmd}"; then
+      log_missing_command "${cmd}" "${link}";
+      exit 1;
+    fi
+  }
+
+  function get_os {
+    case "$(uname -s)" in
+      Darwin) echo 'darwin';;
+      Linux) echo 'linux';;
+      CYGWIN*|MINGW32*|MSYS*|MINGW*) echo 'not-wsl';;
+      *) echo 'unknown';;
+    esac
+  }
+
+  function get_arch {
+    case "$(uname -m)" in
+      x86_64) echo 'amd64';;
+      aarch64|arm64) echo 'arm64';;
+      *) echo 'unknown';;
+    esac
+  }
+
+  function install_asdf {
+    local repo="$1";
+    local version="$2";
+    local dir="$3";
+    if [ ! -d "${dir}" ]; then
+      log_heading "Installing ASDF from ${repo}";
+      git -c advice.detachedHead=false clone \
+        --depth "1" \
+        --branch "${version}" \
+        "https://github.com/asdf-vm/asdf.git" \
+        "${dir}";
+      echo "";
+    fi
+    source "${dir}/asdf.sh";
+  }
+
+  # see: https://github.com/asdf-vm/asdf/issues/240#issuecomment-640777756
+  # also: https://github.com/asdf-vm/asdf/issues/829 & others...
+  function install_asdf_plugins {
+    local pluginFile="$1";
+    local dir="$2";
+    echo -e "$(cat "${pluginFile}")\n" | while read tool gitUrl gitRef; do
+      if [ "${tool}" != "" ]; then
+        install_or_update_asdf_plugin "${tool}" "${gitUrl}" "${gitRef}" "${dir}";
+      fi
+    done
+  }
+
+  function install_or_update_asdf_plugin {
+    local tool="$1";
+    local gitUrl="$2";
+    local gitRef="$3";
+    local dir="$4";
+    if [ ! -d "${dir}/plugins/${tool}" ]; then
+      install_asdf_plugin "${tool}" "${gitUrl}" "${gitRef}" "${dir}";
+    else
+      currentGitRef="$(cd "${dir}/plugins/${tool}" && git rev-parse HEAD)";
+      if [ "${gitRef}" != "${currentGitRef}" ]; then
+        install_asdf_plugin "${tool}" "${gitUrl}" "${gitRef}" "${dir}";
+      fi
+    fi
+  }
+
+  function install_asdf_plugin {
+    local tool="$1";
+    local gitUrl="$2";
+    local gitRef="$3";
+    local dir="$4";
+    log_heading "Installing ASDF Plugin for ${tool}";
+    rm -rf "${dir}/plugins/${tool}";
+    mkdir -p "${dir}/plugins/${tool}";
+    cd "${dir}/plugins/${tool}" \
+      && git -c init.defaultBranch=master init \
+      && git remote add origin "${gitUrl}" \
+      && git fetch --depth "1" origin "${gitRef}" \
+      && git reset --hard FETCH_HEAD \
+    && cd -;
+    echo "";
+  }
+
+  function install_asdf_tools {
+    local toolVersionsFile="$1";
+    local dir="$2";
+    echo -e "$(cat "${toolVersionsFile}")\n" | while read tool version; do
+      if [ "${tool}" != "" ]; then
+        if [ ! -d "${dir}/installs/${tool}/${version}" ]; then
+          log_heading "Installing ${tool} @ ${version}";
+          asdf install "${tool}" "${version}";
+          echo "";
+        fi
+      fi
+    done
+  }
+
+  function export_tool_versions {
+    local toolVersionsFile="$1";
+    tmpFile="$(mktemp /tmp/bootstraper.XXXXXX)"; trap "rm -f ${tmpFile}" EXIT;
+    echo -e "$(cat "${toolVersionsFile}")\n" | while read tool version; do
+      if [ "${tool}" != "" ]; then
+        echo "ASDF_${tool^^}_VERSION=\"${version}\"" >> "${tmpFile}";
+      fi
+    done
+    load_dot_env "${tmpFile}";
+    rm -f ${tmpFile};
+  }
+
+  # Execute the script
+  main "$@"; exit $?;
+}
