@@ -215,7 +215,7 @@ export class Process
 
         const status = await this.#p.status();
 
-        if (throwOnNonZeroExit && status.code !== 0) {
+        if (throwOnNonZeroExit && status.code !== 0 && this.#killed !== true) {
           throw new NonZeroExitCode(
             this.#pOpts,
             status,

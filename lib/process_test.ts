@@ -191,6 +191,7 @@ Deno.test("throwOnStdErr", async () => {
       exec({
         cmd: [Deno.execPath(), "foobar"],
         throwOnStdErr: true,
+        throwOnNonZeroExit: false,
         stdout,
         stderr,
       }),
