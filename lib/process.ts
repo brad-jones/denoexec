@@ -275,7 +275,7 @@ export class Process
    * `signo` is only used on Linux & MacOS and totally ignored by Windows.
    * This version of `kill` supports Windows by shelling out to `taskkill`.
    */
-  async kill(signo = 9) {
+  async kill(signo = "SIGKILL") {
     this.#killing = true;
 
     if (Deno.build.os === "windows") {
