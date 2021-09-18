@@ -1,3 +1,10 @@
+## [1.0.62](https://github.com/brad-jones/denoexec/compare/v1.0.61...v1.0.62) (2021-09-18)
+
+
+### Bug Fixes
+
+* **deps:** bump versions of all that we depend on ([#85](https://github.com/brad-jones/denoexec/issues/85)) ([50c9f16](https://github.com/brad-jones/denoexec/commit/50c9f16bc06c5731669d1dff6998156061a55b3e))
+
 ## [1.0.61](https://github.com/brad-jones/denoexec/compare/v1.0.60...v1.0.61) (2021-09-18)
 
 
