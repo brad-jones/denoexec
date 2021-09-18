@@ -1,3 +1,11 @@
+## [1.0.61](https://github.com/brad-jones/denoexec/compare/v1.0.60...v1.0.61) (2021-09-18)
+
+
+### Bug Fixes
+
+* **throwOnNonZeroExit:** handle killing properly on windows ([6691303](https://github.com/brad-jones/denoexec/commit/669130344dc6be70b32ff8f4ffe01a730094c3a5))
+* **throwOnNonZeroExit:** make the tests pass ([2607100](https://github.com/brad-jones/denoexec/commit/26071008789f9fe3963bd8253a416e6fd01e7b93))
+
 ## [1.0.60](https://github.com/brad-jones/denoexec/compare/v1.0.59...v1.0.60) (2021-09-14)
 
 
