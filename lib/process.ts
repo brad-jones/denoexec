@@ -115,7 +115,7 @@ export class Process
     prefixSeparator = " | ",
     captureStdio = true,
     inheritStdio = true,
-    throwOnNonZeroExit = false,
+    throwOnNonZeroExit = true,
     throwOnStdErr = false,
   }: ProcessOptions) {
     this.#pOpts = {
