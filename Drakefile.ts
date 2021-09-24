@@ -276,6 +276,16 @@ task(`updateDenoModules`, [], async function () {
       ],
       prefix: "updateDenoModules",
     });
+    await exec({
+      cmd: [
+        "deno",
+        "cache",
+        "--lock=Drakefile.lock.json",
+        "--lock-write",
+        "./Drakefile.ts",
+      ],
+      prefix: "updateDenoModules",
+    });
   }
 });
 
