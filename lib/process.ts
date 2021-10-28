@@ -1,4 +1,4 @@
-import { io } from "../deps.ts";
+import { io, streams } from "../deps.ts";
 import { ExecutableNotFound } from "./errors/executable_not_found.ts";
 import { FailedToKillProc } from "./errors/failed_to_kill_proc.ts";
 import { NonEmptyStderrBuffer } from "./errors/non_empty_stderr_buffer.ts";
@@ -154,7 +154,7 @@ export class Process
       ) => {
         try {
           if (prefix === "") {
-            for await (const chunk of io.iter(r)) {
+            for await (const chunk of streams.iterateReader(r)) {
               const jobs = [];
               if (inheritStdio) {
                 jobs.push(w.write(chunk));
@@ -280,7 +280,7 @@ export class Process
    * `signo` is only used on Linux & MacOS and totally ignored by Windows.
    * This version of `kill` supports Windows by shelling out to `taskkill`.
    */
-  async kill(signo = "SIGKILL") {
+  async kill(signo: Deno.Signal = "SIGKILL") {
     this.#killing = true;
 
     if (Deno.build.os === "windows") {
