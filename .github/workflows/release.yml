@@ -16,7 +16,7 @@ jobs:
         with:
           fetch-depth: 0
       - name: Lint commits
-        uses: wagoid/commitlint-github-action@v4.1.4
+        uses: wagoid/commitlint-github-action@v4.1.9
         with:
           configFile: ./.commitlintrc.yml
           failOnWarnings: true
