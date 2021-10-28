@@ -1,3 +1,10 @@
+## [1.0.77](https://github.com/brad-jones/denoexec/compare/v1.0.76...v1.0.77) (2021-10-28)
+
+
+### Bug Fixes
+
+* update to latest version of deno that now supports Deno.Signal ([aa3b53e](https://github.com/brad-jones/denoexec/commit/aa3b53e075cc893eeda54665d4a4ddaa802d25f8))
+
 ## [1.0.76](https://github.com/brad-jones/denoexec/compare/v1.0.75...v1.0.76) (2021-09-27)
 
 
