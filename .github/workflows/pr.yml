@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v2.3.5
+        uses: actions/checkout@v2.4.0
       - name: Get nodejs version
         run: echo ::set-output name=NODE_VERSION::$(cat .tool-versions | grep nodejs | xargs -n 1 | tail -n1)
         id: nodev
@@ -37,7 +37,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v2.3.5
+        uses: actions/checkout@v2.4.0
       - name: Get deno version
         run: echo ::set-output name=DENO_VERSION::$(cat .tool-versions | grep deno | xargs -n 1 | tail -n1)
         id: denov
@@ -60,7 +60,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v2.3.5
+        uses: actions/checkout@v2.4.0
       - name: Get deno version
         run: echo ::set-output name=DENO_VERSION::$(cat .tool-versions | grep deno | xargs -n 1 | tail -n1)
         shell: bash
