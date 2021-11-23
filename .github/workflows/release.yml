@@ -61,7 +61,7 @@ jobs:
         with:
           deno-version: ${{ steps.denov.outputs.DENO_VERSION }}
       - name: Restore deno cache
-        uses: actions/cache@v2.1.6
+        uses: actions/cache@v2.1.7
         with:
           key: ${{ runner.os }}-deno-${{ hashFiles('**/deps.lock.json') }}
           restore-keys: ${{ runner.os }}-deno-
@@ -95,7 +95,7 @@ jobs:
         with:
           node-version: ${{ steps.nodev.outputs.NODE_VERSION }}
       - name: Restore nodejs cache
-        uses: actions/cache@v2.1.6
+        uses: actions/cache@v2.1.7
         with:
           key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
           restore-keys: ${{ runner.os }}-node-
