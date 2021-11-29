@@ -19,7 +19,7 @@ jobs:
         run: echo ::set-output name=NODE_VERSION::$(cat .tool-versions | grep nodejs | xargs -n 1 | tail -n1)
         id: nodev
       - name: Install nodejs
-        uses: actions/setup-node@v2.4.1
+        uses: actions/setup-node@v2.5.0
         with:
           node-version: ${{ steps.nodev.outputs.NODE_VERSION }}
       - name: Restore nodejs cache
