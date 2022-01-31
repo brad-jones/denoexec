@@ -24,7 +24,7 @@ jobs:
           private_key: ${{ secrets.BOT_KEY }}
 
       - name: Create a PR with the updates
-        uses: peter-evans/create-pull-request@v3.10.1
+        uses: peter-evans/create-pull-request@v3.12.1
         with:
           title: "fix(deps): bump versions of all that we depend on"
           body: "Automated changes by https://github.com/peter-evans/create-pull-request"
