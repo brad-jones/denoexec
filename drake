@@ -34,7 +34,7 @@
     # --------------------------------------------------------------------------
     # Feel free to edit this section to as needed.
     # All variables are overideable through "ASDF_LOCAL_*" equivalents.
-    export ASDF_VERSION="${ASDF_LOCAL_VERSION:-"v0.8.1"}";
+    export ASDF_VERSION="${ASDF_LOCAL_VERSION:-"v0.9.0"}";
     export ASDF_REPO="${ASDF_LOCAL_REPO:-"https://github.com/asdf-vm/asdf.git"}";
     export ASDF_DIR="${ASDF_LOCAL_DIR:-"${scriptDir}/.asdf/${ASDF_VERSION}"}";
     export ASDF_DATA_DIR="${ASDF_LOCAL_DATA_DIR:-"${ASDF_DIR}"}";

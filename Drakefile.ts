@@ -5,10 +5,10 @@ import {
   run,
   task,
 } from "https://deno.land/x/drake@v1.5.0/mod.ts#^";
-import { exec } from "./mod.ts";
+import { $, _, prefix } from "./mod.ts";
 import { stripAnsi } from "https://deno.land/x/gutenberg@0.1.5/ansi/strip/mod.ts#^";
 import { titleCase } from "https://deno.land/x/case@v2.1.0/mod.ts#^";
-import { udd } from "https://deno.land/x/udd@0.5.0/mod.ts#^";
+import { udd } from "https://deno.land/x/udd@0.7.2/mod.ts#^";
 import * as semver from "https://deno.land/x/semver@v1.4.0/mod.ts#^";
 
 function fileExists(path: string): boolean {
@@ -22,41 +22,29 @@ function fileExists(path: string): boolean {
 
 desc("Onboard a new developer, the first task you run after cloning.");
 task("onboard", [], async function () {
-  const jobs = [];
-  jobs.push(exec({ cmd: ["npm", "install"], prefix: "npm" }));
-  jobs.push(
-    exec({ cmd: ["git", "config", "pull.rebase", "true"], prefix: "git" }),
-  );
-  jobs.push(exec({
-    cmd: ["git", "config", "core.hooksPath", `${Deno.cwd()}/.hooks`],
-    prefix: "git",
-  }));
-  jobs.push(exec({
-    cmd: ["git", "config", "commit.template", `${Deno.cwd()}/.gitmessagetpl`],
-    prefix: "git",
-  }));
-  await Promise.all(jobs);
+  await Promise.all([
+    prefix("npm", _`npm install`),
+    prefix("git", _`git config pull.rebase true`),
+    prefix("git", _`git config core.hooksPath ${Deno.cwd()}/.hooks`),
+    prefix("git", _`git config commit.template ${Deno.cwd()}/.gitmessagetpl`),
+  ]);
 });
 
 let stagedFiles: string[] = [];
 desc("GitHook: pre-commit");
 task("pre-commit", [], async function () {
-  stagedFiles = (await exec({
-    cmd: ["git", "diff", "--name-only", "--cached"],
-    inheritStdio: false,
-  })).stdout().split("\n").filter((_) => _ !== "").filter((_) => fileExists(_));
+  stagedFiles = (await $`git diff --name-only --cached`)
+    .split("\n").filter((_) => _ !== "").filter((_) => fileExists(_));
   await execute("fmt");
   await execute("lint");
   const cmd = ["git", "add"];
   cmd.push(...stagedFiles);
-  await exec({ cmd });
+  await _(...cmd);
 });
 
 desc("GitHook: commit-msg");
 task("commit-msg", [], async function () {
-  await exec({
-    cmd: ["./node_modules/.bin/commitlint", "-e", "-V"],
-  });
+  await _`./node_modules/.bin/commitlint -e -V`;
 });
 
 desc("GitHook: pre-push");
@@ -83,7 +71,7 @@ task("lint", [], async function () {
   }
   if (files.length > 0) {
     cmd.push(...files);
-    await exec({ cmd, prefix: "lint" });
+    await prefix("lint", _(...cmd));
   }
 });
 
@@ -111,24 +99,13 @@ task("fmt", [], async function () {
   }
   if (files.length > 0) {
     cmd.push(...files);
-    await exec({ cmd, prefix: "fmt" });
+    await prefix("fmt", _(...cmd));
   }
 });
 
 desc("Executes the test suite for this library");
 task("test", [], async function () {
-  await exec({
-    cmd: [
-      "deno",
-      "test",
-      "-A",
-      "--unstable",
-      "--lock",
-      "deps.lock.json",
-      "lib/",
-    ],
-    prefix: "test",
-  });
+  await prefix("test", _`deno test -A --unstable --lock deps.lock.json lib/`);
 });
 
 desc("Automatically updates the entire solution");
@@ -142,10 +119,7 @@ task("update", [
 
 desc(`Update all node modules as defined in package.json`);
 task(`updateNodeModules`, [], async function () {
-  const outdated = JSON.parse(
-    (await exec({ cmd: ["npm", "outdated", "--json"], inheritStdio: false }))
-      .stdout(),
-  ) as Record<
+  const outdated = JSON.parse(await $`npm outdated --json`) as Record<
     string,
     {
       current: string;
@@ -177,17 +151,10 @@ task(`updateNodeModules`, [], async function () {
       );
 
       try {
-        await exec({
-          cmd: [
-            "npm",
-            "update",
-            pkg,
-            "--package-lock-only",
-            "--ignore-scripts",
-            "--no-progress",
-          ],
-          prefix: "updateNodeModules",
-        });
+        await prefix(
+          "updateNodeModules",
+          _`npm update ${pkg} --package-lock-only --ignore-scripts --no-progress`,
+        );
       } catch {
         console.log(
           `updateNodeModules | rolling back, update of ${pkg} failed`,
@@ -206,17 +173,10 @@ task(`updateNodeModules`, [], async function () {
             JSON.stringify(packages, null, 2),
           );
           try {
-            await exec({
-              cmd: [
-                "npm",
-                "update",
-                pkg,
-                "--package-lock-only",
-                "--ignore-scripts",
-                "--no-progress",
-              ],
-              prefix: "updateNodeModules",
-            });
+            await prefix(
+              "updateNodeModules",
+              _`npm update ${pkg} --package-lock-only --ignore-scripts --no-progress`,
+            );
           } catch {
             console.log(
               `updateNodeModules | rolling back, update of ${pkg} failed`,
@@ -235,16 +195,10 @@ task(`updateNodeModules`, [], async function () {
     console.log(
       `updateNodeModules | updating all transient dependencies`,
     );
-    await exec({
-      cmd: [
-        "npm",
-        "update",
-        "--package-lock-only",
-        "--ignore-scripts",
-        "--no-progress",
-      ],
-      prefix: "updateNodeModules",
-    });
+    await prefix(
+      "updateNodeModules",
+      _`npm update --package-lock-only --ignore-scripts --no-progress`,
+    );
   } catch {
     console.log(`updateNodeModules | rolling back, transient update failed`);
     await Deno.writeTextFile("package.json", packageSrc);
@@ -266,26 +220,14 @@ task(`updateDenoModules`, [], async function () {
     }
   }
   if (updated) {
-    await exec({
-      cmd: [
-        "deno",
-        "cache",
-        "--lock=deps.lock.json",
-        "--lock-write",
-        "./deps.ts",
-      ],
-      prefix: "updateDenoModules",
-    });
-    await exec({
-      cmd: [
-        "deno",
-        "cache",
-        "--lock=Drakefile.lock.json",
-        "--lock-write",
-        "./Drakefile.ts",
-      ],
-      prefix: "updateDenoModules",
-    });
+    await prefix(
+      "updateDenoModules",
+      _`deno cache --lock=deps.lock.json --lock-write ./deps.ts`,
+    );
+    await prefix(
+      "updateDenoModules",
+      _`deno cache --lock=Drakefile.lock.json --lock-write ./Drakefile.ts`,
+    );
   }
 });
 
@@ -303,16 +245,10 @@ task(`updateDrakefile`, [], async function () {
     }
   }
   if (updated) {
-    await exec({
-      cmd: [
-        "deno",
-        "cache",
-        "--lock=Drakefile.lock.json",
-        "--lock-write",
-        "./Drakefile.ts",
-      ],
-      prefix: "updateDrakefile",
-    });
+    await prefix(
+      "updateDrakefile",
+      _`deno cache --lock=Drakefile.lock.json --lock-write ./Drakefile.ts`,
+    );
   }
 });
 
@@ -324,16 +260,8 @@ for (const line of pluginVersions.split("\n").filter((_) => _.trim() !== "")) {
 
   desc(`Update the ${tool} asdf plugin as defined in .asdf/.plugin-versions`);
   task(`updateAsdfPlugin${titleCase(tool)}`, [], async function () {
-    const result = await exec({
-      cmd: [
-        "git",
-        "ls-remote",
-        repo,
-        "HEAD",
-      ],
-      inheritStdio: false,
-    });
-    const newSha = result.stdout().split("HEAD")[0].trim();
+    const newSha = (await $`git ls-remote ${repo} HEAD`)
+      .split("HEAD")[0].trim();
     if (sha !== newSha) {
       console.log(
         `updateAsdfPlugin${titleCase(tool)} | from ${sha} to ${newSha}`,
@@ -366,9 +294,7 @@ for (const line of toolVersions.split("\n").filter((_) => _.trim() !== "")) {
 
   desc(`Update the version of ${tool} as defined in .tool-versions`);
   task(`update${titleCase(tool)}`, [], async function () {
-    const latestVersion =
-      (await exec({ cmd: ["asdf", "latest", tool], inheritStdio: false }))
-        .stdout().trim();
+    const latestVersion = (await $`asdf latest ${tool}`).trim();
 
     if (currentVersion !== latestVersion) {
       console.log(
