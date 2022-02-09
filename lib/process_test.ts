@@ -154,7 +154,7 @@ Deno.test("throwOnExecutableNotFound", async () => {
   const stdout = new io.Buffer();
   const stderr = new io.Buffer();
 
-  await testing.assertThrowsAsync(
+  await testing.assertRejects(
     () =>
       exec({
         cmd: ["foobar", "--version"],
@@ -170,7 +170,7 @@ Deno.test("throwOnNonZeroExit", async () => {
   const stdout = new io.Buffer();
   const stderr = new io.Buffer();
 
-  await testing.assertThrowsAsync(
+  await testing.assertRejects(
     () =>
       exec({
         cmd: [Deno.execPath(), "foobar"],
@@ -186,7 +186,7 @@ Deno.test("throwOnStdErr", async () => {
   const stdout = new io.Buffer();
   const stderr = new io.Buffer();
 
-  await testing.assertThrowsAsync(
+  await testing.assertRejects(
     () =>
       exec({
         cmd: [Deno.execPath(), "foobar"],
