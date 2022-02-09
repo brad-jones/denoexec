@@ -1,7 +1,7 @@
 import { exec } from "../mod.ts";
 import { io } from "../deps.ts";
 
-// EXECUTE ME: deno run --allow-read --allow-write --allow-run ./main.ts
+// EXECUTE ME: deno run --allow-read --allow-write --allow-run ./traditional.ts
 
 // EXAMPLE: 1
 // -----------------------------------------------------------------------------

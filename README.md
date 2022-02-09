@@ -32,10 +32,51 @@ It's too basic, can not easily buffer input or output.
 
 ## Usage
 
+### Traditional API
+
 ```ts
 import { exec } from "https://deno.land/x/denoexec/mod.ts";
 
-await exec({ cmd: ["ping", "1.1.1.1"] });
+// A new child process is started as soon as the exec call is made
+const proc = exec({
+  cmd: ["ping", "1.1.1.1"], /* all other options are provided on this object */
+});
+
+// You can do things with the process before it's finished,
+// like kill it or read it's io streams, etc...
+setTimeout(() => proc.kill(), 1000);
+
+// You need to await for it's completion
+const results = await proc;
+console.log(results.success);
 ```
 
-> see [./example/main.ts](./example/main.ts) for more details
+### Functional (Deferred) API
+
+This is an alternative API that provides a subset of functionality and was
+inspired by the likes of <https://github.com/google/zx> &
+<https://github.com/Minigugus/bazx>
+
+```ts
+import { $, _, prefix } from "https://deno.land/x/denoexec/mod.ts";
+
+// Use `_` to create a new deferred child process.
+// At this point nothing has been executed.
+const proc = _`ping 1.1.1.1`;
+
+// You can wrap the process with other functions like this
+proc = prefix("foo", proc);
+
+// Or you might apply config to the object directly
+proc.prefixSeparator = " -> ";
+
+// Finally start the execution of and await the child processes results
+const results = await proc;
+console.log(results.success);
+
+// To capture the io instead of stream it to the console you can use the `$`
+// function, think of it like bash command substitution.
+const branch = $(_`git rev-parse --abbrev-ref HEAD`);
+```
+
+> see [./examples](./examples) for more details

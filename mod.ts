@@ -1,3 +1,4 @@
+export * from "./lib/functional.ts";
 export * from "./lib/process.ts";
 export * from "./lib/process_results.ts";
 export * from "./lib/errors/executable_not_found.ts";
