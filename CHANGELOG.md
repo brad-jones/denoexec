@@ -1,3 +1,29 @@
+## [1.1.0](https://github.com/brad-jones/denoexec/compare/v1.0.77...v1.1.0) (2022-02-09)
+
+
+### Features
+
+* **functional:** add new function based api ([77a95a1](https://github.com/brad-jones/denoexec/commit/77a95a12d03c44b6c373d47ca8cb21f8fc68f013))
+
+
+### Bug Fixes
+
+* **process:** io.copy has been moved to streams.copy ([08ead68](https://github.com/brad-jones/denoexec/commit/08ead68f26b76d844abaf39a11ce40b4e0187524))
+
+
+### Misc
+
+* bump all the versions of all the things manually ([33872ef](https://github.com/brad-jones/denoexec/commit/33872ef041c9beb5ede4e666fb06861d8920efc6))
+
+
+### Automation
+
+* assertThrowsAsync has become assertRejects ([5a7d859](https://github.com/brad-jones/denoexec/commit/5a7d859fb54b15632fd617899dc3349ba6ff0f6c))
+* **fucntional:** added initial tests for string linteral parsing ([9c72c3e](https://github.com/brad-jones/denoexec/commit/9c72c3e890c16617d3b92a1c0c75ca391ad427ec))
+* **semantic-release:** remove uneeded config ([6e739ac](https://github.com/brad-jones/denoexec/commit/6e739ac7b425392c0d20e0f3e240da4fd8635773))
+* **semantic-release:** updated config to capture more commit types ([592e485](https://github.com/brad-jones/denoexec/commit/592e485fe0efcabd278b311cc6d2b6f51d5c14df))
+* various updates and improvements ([34331b0](https://github.com/brad-jones/denoexec/commit/34331b07dd549aa4e30f7e64ab3d94adcb4cfdb5))
+
 ## [1.0.77](https://github.com/brad-jones/denoexec/compare/v1.0.76...v1.0.77) (2021-10-28)
 
 
