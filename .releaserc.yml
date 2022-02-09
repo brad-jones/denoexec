@@ -38,11 +38,6 @@ plugins:
           - { type: update, section: "Automation" }
   - "@semantic-release/changelog"
 
-  # Build the release artifacts
-  # This includes tarballs, rpms/debs, docker images, etc
-  - - "@semantic-release/exec"
-    - prepareCmd: "task prepare-release VERSION=${nextRelease.version}"
-
   # Commit CHANGELOG.md back to repo
   - - "@semantic-release/git"
     - assets: [CHANGELOG.md]
