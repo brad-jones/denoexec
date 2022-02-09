@@ -1,114 +1,54 @@
-on:
-  push:
-    branches:
-      - master
+on: { push: { branches: [ master ] } }
 
 env:
   CI: true
 
 jobs:
-  commitlint:
+  checks:
     if: github.event.head_commit.committer.username != 'web-flow'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v2.3.5
-        with:
-          fetch-depth: 0
-      - name: Lint commits
-        uses: wagoid/commitlint-github-action@v4.1.9
-        with:
-          configFile: ./.commitlintrc.yml
-          failOnWarnings: true
-          firstParent: false
-
-  denolint:
-    if: github.event.head_commit.committer.username != 'web-flow'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v2.3.5
-      - name: Get deno version
-        run: echo ::set-output name=DENO_VERSION::$(cat .tool-versions | grep deno | xargs -n 1 | tail -n1)
-        id: denov
-      - name: Install deno
-        uses: denoland/setup-deno@v1.1.0
-        with:
-          deno-version: ${{ steps.denov.outputs.DENO_VERSION }}
-      - name: Check file format & style
-        run: deno fmt --check --ignore="node_modules,deps.lock.json,Drakefile.lock.json,CHANGELOG.md,package.json,package-lock.json"
-      - name: Lint JavaScript/TypeScript source code
-        run: deno lint --ignore="node_modules,deps.lock.json,Drakefile.lock.json,CHANGELOG.md,package.json,package-lock.json"
-
-  test:
-    if: github.event.head_commit.committer.username != 'web-flow'
-    strategy:
-      matrix:
-        os:
-          - ubuntu-latest
-          - macos-latest
-          - windows-latest
-    runs-on: ${{ matrix.os }}
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v2.3.5
-      - name: Get deno version
-        run: echo ::set-output name=DENO_VERSION::$(cat .tool-versions | grep deno | xargs -n 1 | tail -n1)
-        shell: bash
-        id: denov
-      - name: Install deno
-        uses: denoland/setup-deno@v1.1.0
-        with:
-          deno-version: ${{ steps.denov.outputs.DENO_VERSION }}
-      - name: Restore deno cache
-        uses: actions/cache@v2.1.6
-        with:
-          key: ${{ runner.os }}-deno-${{ hashFiles('**/deps.lock.json') }}
-          restore-keys: ${{ runner.os }}-deno-
-          path: |
-            ~/.cache/deno/deps
-            ~/Library/Caches/deno
-            ~/AppData/Local/deno/deps
-      - name: Execute deno tests
-        run: deno test -A --unstable --lock deps.lock.json lib/
+    uses: ./.github/workflows/checks.yml
 
   release:
-    needs: [commitlint, denolint, test]
+    needs: [checks]
     # see: https://github.com/actions/runner/issues/491
-    if: |
-      always() &&
-      (needs.commitlint.result == 'success' || needs.commitlint.result == 'skipped') &&
-      (needs.denolint.result == 'success' || needs.denolint.result == 'skipped') &&
-      (needs.test.result == 'success' || needs.test.result == 'skipped')
+    if: always() && (needs.checks.result == 'success' || needs.checks.result == 'skipped')
     concurrency:
       group: ${{ github.ref }}
       cancel-in-progress: false
     runs-on: ubuntu-latest
     steps:
+      - name: Authenticate as the denoexec bot
+        id: generate_token
+        uses: tibdex/github-app-token@v1.5.1
+        with:
+          app_id: ${{ secrets.BOT_ID }}
+          private_key: ${{ secrets.BOT_KEY }}
+
       - name: Checkout repo
-        uses: actions/checkout@v2.3.5
+        uses: actions/checkout@v2.4.0
+        with:
+          token: ${{ steps.generate_token.outputs.token }}
+
       - name: Get nodejs version
         run: echo ::set-output name=NODE_VERSION::$(cat .tool-versions | grep nodejs | xargs -n 1 | tail -n1)
         id: nodev
+
       - name: Install nodejs
-        uses: actions/setup-node@v2.4.1
+        uses: actions/setup-node@v2.5.1
         with:
           node-version: ${{ steps.nodev.outputs.NODE_VERSION }}
+
       - name: Restore nodejs cache
-        uses: actions/cache@v2.1.6
+        uses: actions/cache@v2.1.7
         with:
           key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
           restore-keys: ${{ runner.os }}-node-
           path: ~/.npm
+
       - name: Install node deps
         run: npm ci
-      - name: Authenticate as the denoexec bot
-        id: generate_token
-        uses: tibdex/github-app-token@v1.4
-        with:
-          app_id: ${{ secrets.BOT_ID }}
-          private_key: ${{ secrets.BOT_KEY }}
+
       - name: Execute semantic-release
+        run: npx semantic-release
         env:
           GITHUB_TOKEN: ${{ steps.generate_token.outputs.token }}
-        run: npx semantic-release

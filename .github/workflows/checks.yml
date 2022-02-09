@@ -1,10 +1,4 @@
-on:
-  pull_request:
-    types:
-      - opened
-      - reopened
-      - synchronize
-      - edited
+on: { workflow_call: {} }
 
 env:
   CI: true
@@ -14,39 +8,35 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v2.3.5
-      - name: Get nodejs version
-        run: echo ::set-output name=NODE_VERSION::$(cat .tool-versions | grep nodejs | xargs -n 1 | tail -n1)
-        id: nodev
-      - name: Install nodejs
-        uses: actions/setup-node@v2.4.1
+        uses: actions/checkout@v2.4.0
         with:
-          node-version: ${{ steps.nodev.outputs.NODE_VERSION }}
-      - name: Restore nodejs cache
-        uses: actions/cache@v2.1.6
+          fetch-depth: 0
+
+      - name: Lint commits
+        uses: wagoid/commitlint-github-action@v4.1.9
         with:
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: ${{ runner.os }}-node-
-          path: ~/.npm
-      - name: Install node deps
-        run: npm ci
-      - name: Lint PR title & body.
-        run: echo -e "${{ github.event.pull_request.title }} (#${{ github.event.pull_request.number }})\n\n${{ github.event.pull_request.body }}" | npx commitlint
+          configFile: ./.commitlintrc.yml
+          failOnWarnings: true
+          firstParent: false
 
   denolint:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v2.3.5
+        uses: actions/checkout@v2.4.0
+
       - name: Get deno version
         run: echo ::set-output name=DENO_VERSION::$(cat .tool-versions | grep deno | xargs -n 1 | tail -n1)
         id: denov
+
       - name: Install deno
         uses: denoland/setup-deno@v1.1.0
         with:
           deno-version: ${{ steps.denov.outputs.DENO_VERSION }}
+
       - name: Check file format & style
         run: deno fmt --check --ignore="node_modules,deps.lock.json,Drakefile.lock.json,CHANGELOG.md,package.json,package-lock.json"
+
       - name: Lint JavaScript/TypeScript source code
         run: deno lint --ignore="node_modules,deps.lock.json,Drakefile.lock.json,CHANGELOG.md,package.json,package-lock.json"
 
@@ -60,17 +50,20 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v2.3.5
+        uses: actions/checkout@v2.4.0
+
       - name: Get deno version
         run: echo ::set-output name=DENO_VERSION::$(cat .tool-versions | grep deno | xargs -n 1 | tail -n1)
         shell: bash
         id: denov
+
       - name: Install deno
         uses: denoland/setup-deno@v1.1.0
         with:
           deno-version: ${{ steps.denov.outputs.DENO_VERSION }}
+
       - name: Restore deno cache
-        uses: actions/cache@v2.1.6
+        uses: actions/cache@v2.1.7
         with:
           key: ${{ runner.os }}-deno-${{ hashFiles('**/deps.lock.json') }}
           restore-keys: ${{ runner.os }}-deno-
@@ -78,5 +71,6 @@ jobs:
             ~/.cache/deno/deps
             ~/Library/Caches/deno
             ~/AppData/Local/deno/deps
+
       - name: Execute deno tests
         run: deno test -A --unstable --lock deps.lock.json lib/

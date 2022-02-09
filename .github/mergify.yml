@@ -1,21 +1,21 @@
 queue_rules:
   - name: default
     conditions:
-      - check-success=commitlint
-      - check-success=denolint
-      - check-success=test (ubuntu-latest)
-      - check-success=test (macos-latest)
-      - check-success=test (windows-latest)
+      - check-success=checks / commitlint
+      - check-success=checks / denolint
+      - check-success=checks / test (ubuntu-latest)
+      - check-success=checks / test (macos-latest)
+      - check-success=checks / test (windows-latest)
 
 pull_request_rules:
   - name: Merge Approved PRs
     conditions:
       - base=master
-      - check-success=commitlint
-      - check-success=denolint
-      - check-success=test (ubuntu-latest)
-      - check-success=test (macos-latest)
-      - check-success=test (windows-latest)
+      - check-success=checks / commitlint
+      - check-success=checks / denolint
+      - check-success=checks / test (ubuntu-latest)
+      - check-success=checks / test (macos-latest)
+      - check-success=checks / test (windows-latest)
       - or:
         - "#approved-reviews-by>=1"
         - label=lgtm
@@ -28,11 +28,11 @@ pull_request_rules:
     conditions:
       - base=master
       - label=dependencies
-      - check-success=commitlint
-      - check-success=denolint
-      - check-success=test (ubuntu-latest)
-      - check-success=test (macos-latest)
-      - check-success=test (windows-latest)
+      - check-success=checks / commitlint
+      - check-success=checks / denolint
+      - check-success=checks / test (ubuntu-latest)
+      - check-success=checks / test (macos-latest)
+      - check-success=checks / test (windows-latest)
     actions:
       queue:
         name: default

@@ -1,0 +1,15 @@
+on:
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - synchronize
+      - edited
+
+env:
+  CI: true
+
+jobs:
+  checks:
+    # see: https://github.com/github/feedback/discussions/10679
+    uses: brad-jones/denoexec/.github/workflows/checks.yml@master
