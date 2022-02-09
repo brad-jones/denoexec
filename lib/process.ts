@@ -195,7 +195,7 @@ export class Process
           if (stdin instanceof Uint8Array) {
             stdin = new io.Buffer(stdin);
           }
-          await io.copy(stdin, this.stdin);
+          await streams.copy(stdin, this.stdin);
         }
 
         try {
