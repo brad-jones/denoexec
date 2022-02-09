@@ -1,4 +1,18 @@
-export * from "./lib/functional.ts";
+export {
+  $,
+  _,
+  captureStdio,
+  cwd,
+  env,
+  inheritStdio,
+  prefix,
+  prefixSeparator,
+  stderr,
+  stdin,
+  stdout,
+  throwOnNonZeroExit,
+  throwOnStdErr,
+} from "./lib/functional.ts";
 export * from "./lib/process.ts";
 export * from "./lib/process_results.ts";
 export * from "./lib/errors/executable_not_found.ts";

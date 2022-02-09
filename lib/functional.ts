@@ -51,7 +51,10 @@ export function _(...args: unknown[]): ProcessDeferred {
 /**
  * credit: https://github.com/Minigugus/bazx/blob/95c104e8ade296f8e64343074415baae6291429d/src/mod.ts#L78-L100
  */
-function parseStringLiteral(xs: TemplateStringsArray, ...args: unknown[]) {
+export function parseStringLiteral(
+  xs: TemplateStringsArray,
+  ...args: unknown[]
+) {
   if (!Array.isArray(xs) || !Array.isArray(xs.raw)) {
     throw new Error("$ can only be used as a template string tag");
   }
