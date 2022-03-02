@@ -1,3 +1,10 @@
+### [1.1.2](https://github.com/brad-jones/denoexec/compare/v1.1.1...v1.1.2) (2022-03-02)
+
+
+### Automation
+
+* **deps:** bump actions/checkout from 2.4.0 to 3 ([#116](https://github.com/brad-jones/denoexec/issues/116)) ([86d2661](https://github.com/brad-jones/denoexec/commit/86d2661caa7203309b7b06c2b804dd8a973b7787)), closes [#708](https://github.com/brad-jones/denoexec/issues/708) [#689](https://github.com/brad-jones/denoexec/issues/689) [#623](https://github.com/brad-jones/denoexec/issues/623)
+
 ### [1.1.1](https://github.com/brad-jones/denoexec/compare/v1.1.0...v1.1.1) (2022-02-24)
 
 
