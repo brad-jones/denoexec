@@ -39,7 +39,7 @@ jobs:
           node-version: ${{ steps.nodev.outputs.NODE_VERSION }}
 
       - name: Restore nodejs cache
-        uses: actions/cache@v2.1.7
+        uses: actions/cache@v3
         with:
           key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
           restore-keys: ${{ runner.os }}-node-
