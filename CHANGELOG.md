@@ -1,3 +1,10 @@
+### [1.1.3](https://github.com/brad-jones/denoexec/compare/v1.1.2...v1.1.3) (2022-03-30)
+
+
+### Automation
+
+* **deps:** bump actions/cache from 2.1.7 to 3.0.1 ([#119](https://github.com/brad-jones/denoexec/issues/119)) ([f9554d2](https://github.com/brad-jones/denoexec/commit/f9554d26b383b198d176000e2497ec1b946cbedb)), closes [#774](https://github.com/brad-jones/denoexec/issues/774) [#775](https://github.com/brad-jones/denoexec/issues/775) [#771](https://github.com/brad-jones/denoexec/issues/771) [#770](https://github.com/brad-jones/denoexec/issues/770) [#769](https://github.com/brad-jones/denoexec/issues/769) [#651](https://github.com/brad-jones/denoexec/issues/651)
+
 ### [1.1.2](https://github.com/brad-jones/denoexec/compare/v1.1.1...v1.1.2) (2022-03-02)
 
 
