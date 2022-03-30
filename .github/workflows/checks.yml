@@ -63,7 +63,7 @@ jobs:
           deno-version: ${{ steps.denov.outputs.DENO_VERSION }}
 
       - name: Restore deno cache
-        uses: actions/cache@v2.1.7
+        uses: actions/cache@v3.0.1
         with:
           key: ${{ runner.os }}-deno-${{ hashFiles('**/deps.lock.json') }}
           restore-keys: ${{ runner.os }}-deno-
