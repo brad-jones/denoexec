@@ -1,3 +1,10 @@
+### [1.1.5](https://github.com/brad-jones/denoexec/compare/v1.1.4...v1.1.5) (2022-04-11)
+
+
+### Automation
+
+* **deps:** bump actions/setup-node from 3.1.0 to 3.1.1 ([#125](https://github.com/brad-jones/denoexec/issues/125)) ([a47c493](https://github.com/brad-jones/denoexec/commit/a47c49368fa9742a1614be999a83c0412593eea4)), closes [actions/setup-node#460](https://github.com/actions/setup-node/issues/460) [#460](https://github.com/brad-jones/denoexec/issues/460) [#391](https://github.com/brad-jones/denoexec/issues/391)
+
 ### [1.1.4](https://github.com/brad-jones/denoexec/compare/v1.1.3...v1.1.4) (2022-04-01)
 
 
