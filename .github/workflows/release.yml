@@ -34,7 +34,7 @@ jobs:
         id: nodev
 
       - name: Install nodejs
-        uses: actions/setup-node@v3.1.1
+        uses: actions/setup-node@v3.6.0
         with:
           node-version: ${{ steps.nodev.outputs.NODE_VERSION }}
 
